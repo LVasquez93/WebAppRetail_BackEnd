@@ -33,6 +33,11 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final SucursalRepository sucursalRepository;
 
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, String>> health() {
+        return ResponseEntity.ok(Map.of("status", "UP"));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
         String username = request.getUsername().trim().toUpperCase();
