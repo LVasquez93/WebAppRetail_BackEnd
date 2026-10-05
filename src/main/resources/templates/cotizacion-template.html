@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Cotización</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin-top: 105pt;
+            margin-bottom: 102pt;
+            margin-left: 35pt;
+            margin-right: 35pt;
+        }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #000000;
+            font-size: 9.5pt;
+            line-height: 1.2;
+            background-color: #ffffff;
+        }
+        .content-container {
+            padding: 0;
+        }
+        .top-meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5px;
+        }
+        .top-meta-table td {
+            vertical-align: top;
+            padding: 0;
+        }
+        .client-info {
+            width: 58%;
+            font-size: 9.5pt;
+        }
+        .client-info .label {
+            font-weight: bold;
+        }
+        .client-info .client-name {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .quote-box {
+            width: 42%;
+            text-align: right;
+            font-size: 9.5pt;
+        }
+        .quote-box .quote-num {
+            font-weight: bold;
+        }
+        .intro-text {
+            margin: 5px 0;
+            text-align: justify;
+            font-size: 9.5pt;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-top: 5px;
+            margin-bottom: 3px;
+            font-size: 9.5pt;
+        }
+        /* Tabla de Ítems */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+            font-size: 10pt;
+            -fs-table-paginate: paginate;
+        }
+        .items-table thead {
+            display: table-header-group;
+        }
+        .items-table tr {
+            page-break-inside: avoid;
+        }
+        .items-table th {
+            background-color: #6394EC;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 5px 6px;
+            border: 1px solid #4a75c4;
+            text-align: center;
+        }
+        .items-table td {
+            border: 1px solid #a0bfe0;
+            padding: 4px 6px;
+            vertical-align: middle;
+        }
+        .cell-item {
+            background-color: #ACD7E6;
+            text-align: center;
+            width: 5%;
+        }
+        .cell-equipo {
+            background-color: #ACD7E6;
+            width: 45%;
+        }
+        .equipo-titulo {
+            font-weight: bold;
+            font-size: 8.5pt;
+            line-height: 1.2;
+            color: #000000;
+        }
+        .cell-equipo .pn {
+            font-weight: bold;
+            font-size: 8pt;
+            color: #1a1a1a;
+            margin-top: 1px;
+        }
+        .caracteristicas-list {
+            margin: 3px 0 0 14px;
+            padding: 0;
+            font-size: 7.5pt;
+            line-height: 1.25;
+            color: #222222;
+        }
+        .caracteristicas-list li {
+            margin-bottom: 1px;
+        }
+        .cell-entrega {
+            background-color: #ACD7E6;
+            text-align: center;
+            width: 18%;
+        }
+        .cell-cantidad {
+            background-color: #ACD7E6;
+            text-align: center;
+            width: 8%;
+        }
+        .cell-precio {
+            background-color: #FFE3E7;
+            text-align: right;
+            width: 12%;
+            font-family: Arial, sans-serif;
+        }
+        .cell-total {
+            background-color: #ACD7E6;
+            text-align: right;
+            width: 12%;
+            font-family: Arial, sans-serif;
+        }
+        /* Filas de Totales */
+        .total-label-cell {
+            background-color: #FFE3E7;
+            text-align: right;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            font-size: 8.5pt;
+        }
+        .total-value-cell {
+            background-color: #FFE3E7;
+            text-align: right;
+            font-weight: bold;
+        }
+        .letters-row {
+            background-color: #FFE3E7;
+            text-align: center;
+            font-weight: bold;
+            color: #800000;
+            font-size: 8.5pt;
+            padding: 4px 8px;
+        }
+        /* Bloques Modulares con Salto de Página Automático */
+        .pdf-block {
+            page-break-inside: avoid;
+            margin-top: 5px;
+            font-size: 8pt;
+            line-height: 1.2;
+        }
+        .pdf-block p {
+            margin: 1.5px 0;
+            text-align: justify;
+        }
+        .block-title {
+            font-weight: bold;
+            font-size: 8.5pt;
+            margin-bottom: 1.5px;
+        }
+        /* Firma Centrada (Tabla para garantizar alineación horizontal en PDF) */
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin-top: 6px;
+            margin-bottom: 2px;
+            page-break-inside: avoid;
+        }
+        .signature-table td {
+            border: none;
+            text-align: center;
+            padding: 0;
+        }
+        .signature-img {
+            height: 32px;
+            display: inline-block;
+            margin: 0 auto 2px auto;
+        }
+        .signature-name {
+            font-weight: bold;
+            font-size: 8.5pt;
+            text-align: center;
+            letter-spacing: 0.5px;
+            color: #000000;
+        }
+        .signature-title {
+            font-weight: bold;
+            font-size: 7.5pt;
+            color: #333333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <!-- Encabezado Cliente y Metadatos de Cotización -->
+        <table class="top-meta-table">
+            <tr>
+                <td class="client-info">
+                    <span class="label">Señor(a):</span><br/>
+                    <span class="client-name" th:text="${c.contactoCliente}">Tania Argueta</span><br/>
+                    <span th:text="${c.razonSocialCliente}">ALIMENTOS Y TURISMO SA DE CV</span><br/>
+                    <span th:if="${c.nombreComercial != null and !c.nombreComercial.isEmpty()}" th:text="${c.nombreComercial}">PREMIUM RESTAURANTS</span>
+                </td>
+                <td class="quote-box">
+                    <span class="quote-num">COTIZACIÓN: <span th:text="${c.codigoCotizacion}">#20260928003</span></span><br/>
+                    <span>USUARIO: <span th:text="${c.usuarioEmisor}">VENTASSR001</span></span><br/>
+                    <span th:text="${#temporals.format(c.fechaEmision, 'EEEE, dd ''de'' MMMM ''de'' yyyy')}">San Salvador, 28 de septiembre de 2026</span>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Párrafo Protocolario -->
+        <p class="intro-text">
+            <strong>Estimados señores:</strong><br/>
+            En atención a sus requerimientos, nos permitimos presentar a continuación las especificaciones técnicas y la inversión correspondiente del equipo solicitado, para su evaluación en el desarrollo de su proyecto.
+        </p>
+
+        <div class="section-title">Detalle de la oferta:</div>
+
+        <!-- Tabla de Ítems con Estilo Visual Exacto -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Equipo</th>
+                    <th>Tiempo Entrega</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unidad</th>
+                    <th>Total Unitario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="it : ${c.items}">
+                    <td class="cell-item" th:text="${it.itemNumero}">1</td>
+                    <td class="cell-equipo">
+                        <div class="equipo-titulo" th:text="${it.descripcionEquipo}">CINTA ZEBRA</div>
+                        <div th:if="${it.partNumber != null and !it.partNumber.trim().isEmpty()}" class="pn" th:text="${it.partNumber.trim().toUpperCase().startsWith('PN') ? it.partNumber.trim() : 'PN: ' + it.partNumber.trim()}">PN: ZCD-800300-250LA</div>
+                        <ul th:if="${it.listaCaracteristicas != null and !it.listaCaracteristicas.isEmpty()}" class="caracteristicas-list">
+                            <li th:each="caract : ${it.listaCaracteristicas}" th:text="${caract}"></li>
+                        </ul>
+                    </td>
+                    <td class="cell-entrega" th:text="${it.tiempoEntrega}">De 5 a 6 semanas</td>
+                    <td class="cell-cantidad" th:text="${it.cantidad}">1</td>
+                    <td class="cell-precio" th:text="'$ ' + ${#numbers.formatDecimal(it.precioUnitario, 1, 'COMMA', 2, 'POINT')}">$ 42.00</td>
+                    <td class="cell-total" th:text="'$ ' + ${#numbers.formatDecimal(it.totalLinea, 1, 'COMMA', 2, 'POINT')}">$ 42.00</td>
+                </tr>
+                <!-- Filas de Resumen Financiero -->
+                <tr>
+                    <td colspan="4" style="border: none; background-color: transparent;"></td>
+                    <td class="total-label-cell">SUBTOTAL SIN IVA</td>
+                    <td class="total-value-cell" th:text="'$ ' + ${#numbers.formatDecimal(c.subtotalSinIva, 1, 'COMMA', 2, 'POINT')}">$ 177.06</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="border: none; background-color: transparent;"></td>
+                    <td class="total-label-cell">IVA</td>
+                    <td class="total-value-cell" th:text="'$ ' + ${#numbers.formatDecimal(c.montoIva, 1, 'COMMA', 2, 'POINT')}">$ 23.02</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="border: none; background-color: transparent;"></td>
+                    <td class="total-label-cell">TOTAL, INVERSION</td>
+                    <td class="total-value-cell" th:text="'$ ' + ${#numbers.formatDecimal(c.totalInversion, 1, 'COMMA', 2, 'POINT')}">$ 200.08</td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="letters-row" th:text="${c.totalEnLetras}">
+                        DOSCIENTOS DOLARES CON 08/100
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Bloque 1: Condiciones Comerciales -->
+        <div class="pdf-block">
+            <div class="block-title">Condiciones comerciales:</div>
+            <p><strong>Forma de pago:</strong> <span th:text="${c.formaPago}">Crédito 30 días, Transferencia Bancaria o Cheque</span></p>
+            <p><strong>Nota:</strong> ** IMPORTANTE ** <span th:text="${c.notaImportante ?: 'Tiempos de entrega y precios, podrían estar sujetos a cambios en inventario'}"></span></p>
+        </div>
+
+        <!-- Bloque 2: Garantía -->
+        <div class="pdf-block">
+            <div class="block-title">Garantía:</div>
+            <p>La garantía del equipo descrito se encuentra especificada dentro de sus características técnicas y entra en vigencia a partir de la fecha de entrega y recepción conforme por parte del cliente. Esta será atendida a nivel local a través de nuestro departamento técnico o mediante los canales autorizados por el fabricante.</p>
+            <p>La garantía cubre defectos de fabricación bajo condiciones normales de uso. Quedan excluidos de la garantía los daños ocasionados por uso indebido, manipulación inadecuada, falta de mantenimiento, instalaciones eléctricas deficientes, variaciones de voltaje, así como el uso de accesorios o consumibles no autorizados por el fabricante.</p>
+        </div>
+
+        <!-- Bloque 3: Valor Agregado -->
+        <div class="pdf-block">
+            <div class="block-title">Valor Agregado:</div>
+            <p>• Se garantizará la disponibilidad de los modelos ofertados en inventario, conforme a las proyecciones de demanda.</p>
+            <p>• Se mantendrá stock de partes y repuestos necesarios para atender oportunamente garantías y reparaciones.</p>
+            <p>• Se brindará soporte técnico local y acompañamiento especializado requerido para la correcta implementación.</p>
+            <p>• Se contará con respaldo directo del fabricante, incluyendo canales de comunicación y escalamiento.</p>
+            <p>• Reemplazo inmediato del equipo en caso de presentar fallas de fábrica dentro de los primeros 30 días posteriores a su entrega.</p>
+        </div>
+
+        <!-- Bloque 4: Firma Autorizada Centrada (Tabla para alineación perfecta en PDF) -->
+        <table class="signature-table">
+            <tr>
+                <td>
+                    <img th:src="${signatureBase64}" class="signature-img" alt="Firma Autorizada"/><br/>
+                    <div class="signature-name" th:text="${nombreFirmante != null ? nombreFirmante : 'ING. ERICK RAMIREZ'}">ING. ERICK RAMIREZ</div>
+                    <div class="signature-title" th:text="${cargoFirmante != null ? cargoFirmante : 'GERENTE GENERAL'}">GERENTE GENERAL</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
