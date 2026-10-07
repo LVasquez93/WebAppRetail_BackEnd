@@ -4,6 +4,8 @@ import com.retail.cotizador.common.exception.ResourceNotFoundException;
 import com.retail.cotizador.equipos.dto.EquipoDto;
 import com.retail.cotizador.equipos.entity.Equipo;
 import com.retail.cotizador.equipos.repository.EquipoRepository;
+import com.retail.cotizador.sucursales.entity.Sucursal;
+import com.retail.cotizador.sucursales.repository.SucursalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,19 +19,25 @@ import java.util.stream.Collectors;
 public class EquipoService {
 
     private final EquipoRepository equipoRepository;
+    private final SucursalRepository sucursalRepository;
 
     @Transactional(readOnly = true)
     public List<EquipoDto> listarOBuscar(String query) {
-        return listarOBuscar(query, null);
+        return listarOBuscar(query, null, null);
     }
 
     @Transactional(readOnly = true)
     public List<EquipoDto> listarOBuscar(String query, Long sucursalId) {
+        return listarOBuscar(query, null, sucursalId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EquipoDto> listarOBuscar(String query, Long empresaId, Long sucursalId) {
         List<Equipo> list;
         if (query != null && !query.trim().isEmpty()) {
-            list = equipoRepository.buscarEquipos(query.trim(), sucursalId);
+            list = equipoRepository.buscarEquipos(query.trim(), empresaId, sucursalId);
         } else {
-            list = equipoRepository.listarPorSucursal(sucursalId);
+            list = equipoRepository.listarPorEmpresaYSucursal(empresaId, sucursalId);
         }
         return list.stream().map(this::mapToDto).collect(Collectors.toList());
     }
@@ -43,6 +51,13 @@ public class EquipoService {
 
     @Transactional
     public EquipoDto crearOActualizar(EquipoDto dto) {
+        Long empresaId = dto.getEmpresaId();
+        if (empresaId == null && dto.getSucursalId() != null) {
+            empresaId = sucursalRepository.findById(dto.getSucursalId())
+                    .map(Sucursal::getEmpresaId)
+                    .orElse(null);
+        }
+
         // Si viene con ID o si ya existe por Part Number o por Descripción exacta, actualizar o retornar
         Optional<Equipo> existente = Optional.empty();
         if (dto.getPartNumber() != null && !dto.getPartNumber().trim().isEmpty()) {
@@ -74,6 +89,9 @@ public class EquipoService {
             if (dto.getSucursalId() != null) {
                 equipo.setSucursalId(dto.getSucursalId());
             }
+            if (empresaId != null) {
+                equipo.setEmpresaId(empresaId);
+            }
             equipo.setActivo(true);
         } else {
             equipo = Equipo.builder()
@@ -83,6 +101,7 @@ public class EquipoService {
                     .precioReferencial(dto.getPrecioReferencial())
                     .tiempoEntregaPredeterminado(dto.getTiempoEntregaPredeterminado() != null ? dto.getTiempoEntregaPredeterminado().trim() : "De 5 a 6 semanas")
                     .categoria(dto.getCategoria() != null ? dto.getCategoria().trim() : "General")
+                    .empresaId(empresaId)
                     .sucursalId(dto.getSucursalId())
                     .activo(dto.getActivo() != null ? dto.getActivo() : true)
                     .build();
@@ -102,6 +121,9 @@ public class EquipoService {
         equipo.setPrecioReferencial(dto.getPrecioReferencial());
         equipo.setTiempoEntregaPredeterminado(dto.getTiempoEntregaPredeterminado());
         equipo.setCategoria(dto.getCategoria());
+        if (dto.getEmpresaId() != null) {
+            equipo.setEmpresaId(dto.getEmpresaId());
+        }
         if (dto.getSucursalId() != null) {
             equipo.setSucursalId(dto.getSucursalId());
         }
@@ -140,6 +162,7 @@ public class EquipoService {
                 .precioReferencial(entity.getPrecioReferencial())
                 .tiempoEntregaPredeterminado(entity.getTiempoEntregaPredeterminado())
                 .categoria(entity.getCategoria())
+                .empresaId(entity.getEmpresaId())
                 .sucursalId(entity.getSucursalId())
                 .activo(entity.getActivo())
                 .fechaCreacion(entity.getFechaCreacion())

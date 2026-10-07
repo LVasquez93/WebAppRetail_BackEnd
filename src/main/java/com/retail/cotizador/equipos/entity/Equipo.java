@@ -34,6 +34,9 @@ public class Equipo {
     @Column(length = 100)
     private String categoria;
 
+    @Column(name = "empresa_id")
+    private Long empresaId;
+
     @Column(name = "sucursal_id")
     private Long sucursalId;
 

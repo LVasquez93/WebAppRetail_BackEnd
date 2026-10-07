@@ -14,15 +14,19 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
     List<Cliente> findByActivoTrueOrderByRazonSocialAsc();
 
-    @Query("SELECT c FROM Cliente c WHERE c.activo = true AND (:sucursalId IS NULL OR c.sucursalId = :sucursalId OR c.sucursalId IS NULL) ORDER BY c.razonSocial ASC")
-    List<Cliente> listarPorSucursal(@Param("sucursalId") Long sucursalId);
+    @Query("SELECT c FROM Cliente c WHERE c.activo = true AND " +
+           "(:empresaId IS NULL OR c.empresaId = :empresaId) AND " +
+           "(:sucursalId IS NULL OR c.sucursalId = :sucursalId) " +
+           "ORDER BY c.razonSocial ASC")
+    List<Cliente> listarPorEmpresaYSucursal(@Param("empresaId") Long empresaId, @Param("sucursalId") Long sucursalId);
 
     Optional<Cliente> findByRazonSocialIgnoreCase(String razonSocial);
 
     @Query("SELECT c FROM Cliente c WHERE c.activo = true AND " +
-           "(:sucursalId IS NULL OR c.sucursalId = :sucursalId OR c.sucursalId IS NULL) AND (" +
+           "(:empresaId IS NULL OR c.empresaId = :empresaId) AND " +
+           "(:sucursalId IS NULL OR c.sucursalId = :sucursalId) AND (" +
            "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(c.nombreComercial) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(c.contactoPrincipal) LIKE LOWER(CONCAT('%', :query, '%')))")
-    List<Cliente> buscarClientes(@Param("query") String query, @Param("sucursalId") Long sucursalId);
+    List<Cliente> buscarClientes(@Param("query") String query, @Param("empresaId") Long empresaId, @Param("sucursalId") Long sucursalId);
 }

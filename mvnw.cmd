@@ -72,16 +72,18 @@ if not exist "%WRAPPER_JAR%" (
 
 @REM Find java.exe
 if defined JAVA_HOME (
+    set "JAVA_HOME=%JAVA_HOME:"=%"
+)
+if exist "%JAVA_HOME%\bin\java.exe" (
     set "JAVACMD=%JAVA_HOME%\bin\java.exe"
-    if not exist "!JAVACMD!" (
-        echo.
-        echo Error: JAVA_HOME is set to an invalid directory.
-        echo JAVA_HOME = "%JAVA_HOME%"
-        echo Please set the JAVA_HOME variable in your environment to match the
-        echo location of your Java installation.
-        echo.
-        exit /b 1
-    )
+) else if defined JAVA_HOME (
+    echo.
+    echo Error: JAVA_HOME is set to an invalid directory.
+    echo JAVA_HOME = "%JAVA_HOME%"
+    echo Please set the JAVA_HOME variable in your environment to match the
+    echo location of your Java installation.
+    echo.
+    exit /b 1
 ) else (
     set "JAVACMD=java.exe"
 )

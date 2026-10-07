@@ -15,6 +15,15 @@ public interface CotizacionRepository extends JpaRepository<Cotizacion, Long> {
 
     org.springframework.data.domain.Page<Cotizacion> findAllBySucursalId(Long sucursalId, org.springframework.data.domain.Pageable pageable);
 
+    @Query("SELECT c FROM Cotizacion c WHERE " +
+           "(:empresaId IS NULL OR c.empresaId = :empresaId) AND " +
+           "(:sucursalId IS NULL OR c.sucursalId = :sucursalId) " +
+           "ORDER BY c.fechaCreacion DESC")
+    org.springframework.data.domain.Page<Cotizacion> filtrarCotizaciones(
+            @Param("empresaId") Long empresaId,
+            @Param("sucursalId") Long sucursalId,
+            org.springframework.data.domain.Pageable pageable);
+
     @Query("SELECT DISTINCT c FROM Cotizacion c LEFT JOIN FETCH c.items WHERE c.id = :id")
     Optional<Cotizacion> findByIdWithItems(@Param("id") Long id);
 }

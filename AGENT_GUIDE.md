@@ -102,9 +102,12 @@ src/main/java/com/retail/cotizador/
 erDiagram
     EMPRESA ||--o{ SUCURSAL : posee
     EMPRESA ||--o{ USUARIO : emplea
+    EMPRESA ||--o{ CLIENTE : segrega
+    EMPRESA ||--o{ EQUIPO : segrega
+    EMPRESA ||--o{ COTIZACION : segrega
     SUCURSAL ||--o{ USUARIO : asigna
-    SUCURSAL ||--o{ CLIENTE : posee
-    SUCURSAL ||--o{ EQUIPO : posee
+    SUCURSAL ||--o{ CLIENTE : asigna
+    SUCURSAL ||--o{ EQUIPO : asigna
     SUCURSAL ||--o{ COTIZACION : emite
     COTIZACION ||--|{ ITEM_COTIZACION : contiene
 
@@ -133,6 +136,26 @@ erDiagram
         Boolean activo
     }
 
+    CLIENTE {
+        Long id PK
+        Long empresaId FK
+        Long sucursalId FK
+        String razonSocial
+        String nombreComercial
+        String contactoPrincipal
+        Boolean activo
+    }
+
+    EQUIPO {
+        Long id PK
+        Long empresaId FK
+        Long sucursalId FK
+        String descripcion
+        String partNumber
+        BigDecimal precioReferencial
+        Boolean activo
+    }
+
     USUARIO {
         Long id PK
         String username
@@ -145,6 +168,8 @@ erDiagram
 
     COTIZACION {
         Long id PK
+        Long empresaId FK
+        Long sucursalId FK
         String codigoCotizacion UK
         String usuarioEmisor
         LocalDate fechaEmision
@@ -152,7 +177,6 @@ erDiagram
         BigDecimal montoIva
         BigDecimal totalInversion
         String totalEnLetras
-        Long sucursalId FK
     }
 
     ITEM_COTIZACION {
@@ -168,13 +192,22 @@ erDiagram
 
 ---
 
-## 5. Matriz de Seguridad y Roles (RBAC)
+## 5. Matriz de Seguridad y Roles (RBAC) & Multi-Tenancy
 
-### Usuarios Sembrados por Defecto ([DataInitializer.java](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/common/config/DataInitializer.java)):
-- `admin` / `admin123` -> `ROLE_ADMIN` (Acceso total, cambio de sucursal, CRUD catálogos y sucursales).
-- `gerente` / `gerente123` -> `ROLE_GERENTE` (Supervisión, cambio de sucursal, CRUD catálogos, cotización e historial).
-- `vendedor1` / `ventas123` -> `ROLE_VENTAS` (Asignado fijamente a Sucursal 1).
-- `vendedor2` / `ventas123` -> `ROLE_VENTAS` (Asignado fijamente a Sucursal 2).
+### SuperAdmin del SaaS vs. Tenancy de Empresas:
+- `ERAMIREZ` / `admin123` -> `ROLE_ADMIN` (**Super Administrador de la Plataforma SaaS**):
+  - **No está atado a ninguna empresa (`empresaId = null`, `sucursalId = null`)**.
+  - Posee un selector global de Empresa y Sucursal en la interfaz.
+  - Puede crear y suspender organizaciones clientes (empresas), aprovisionar nuevos gerentes y navegar por todos los catálogos e historiales de cotización mediante filtros en cascada (Empresa -> Sucursal).
+- `gerente` / `gerente123` -> `ROLE_GERENTE` (**Gerente / Dueño de Organización Cliente**):
+  - Atado a su `empresaId`. Supervisa todas las sucursales de su empresa, crea/edita sucursales y gestiona sus propios catálogos y cotizaciones. No puede ver datos de otras empresas.
+- `vendedor1` / `ventas123` -> `ROLE_VENTAS` (**Ejecutivo de Ventas**):
+  - Asignado fijamente a su empresa y sucursal. Acceso limitado a emitir cotizaciones y ver el catálogo e historial de su sucursal.
+
+### Aislamiento Multi-Tenant en Backend:
+- En `ClienteController`, `EquipoController` y `CotizacionController`, las consultas resuelven el `UserPrincipal`:
+  - Si el usuario tiene `ROLE_ADMIN` y envía un `empresaId` opcional, se filtra por esa empresa; si no lo envía, se consultan todas.
+  - Para cualquier usuario regular (`ROLE_GERENTE`, `ROLE_VENTAS`), el servidor sobreescribe cualquier parámetro entrante con `userPrincipal.getEmpresaId()`, impidiendo acceso cruzado entre empresas a nivel de base de datos.
 
 ### Reglas de Acceso en Endpoints ([SecurityConfig.java](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/auth/security/SecurityConfig.java)):
 - `/api/v1/auth/**` (incluye `/login` y `/health`): **Público**.

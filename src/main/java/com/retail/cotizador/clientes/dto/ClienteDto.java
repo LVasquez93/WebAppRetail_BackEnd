@@ -19,6 +19,7 @@ public class ClienteDto {
     private String telefono;
     private String correo;
     private String direccion;
+    private Long empresaId;
     private Long sucursalId;
     private Boolean activo;
     private LocalDateTime fechaCreacion;

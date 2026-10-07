@@ -20,6 +20,7 @@ public class EquipoDto {
     private BigDecimal precioReferencial;
     private String tiempoEntregaPredeterminado;
     private String categoria;
+    private Long empresaId;
     private Long sucursalId;
     private Boolean activo;
     private LocalDateTime fechaCreacion;

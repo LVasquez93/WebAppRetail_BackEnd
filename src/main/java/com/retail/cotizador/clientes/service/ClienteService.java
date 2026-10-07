@@ -4,6 +4,8 @@ import com.retail.cotizador.clientes.dto.ClienteDto;
 import com.retail.cotizador.clientes.entity.Cliente;
 import com.retail.cotizador.clientes.repository.ClienteRepository;
 import com.retail.cotizador.common.exception.ResourceNotFoundException;
+import com.retail.cotizador.sucursales.entity.Sucursal;
+import com.retail.cotizador.sucursales.repository.SucursalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,19 +18,25 @@ import java.util.stream.Collectors;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final SucursalRepository sucursalRepository;
 
     @Transactional(readOnly = true)
     public List<ClienteDto> listarOBuscar(String query) {
-        return listarOBuscar(query, null);
+        return listarOBuscar(query, null, null);
     }
 
     @Transactional(readOnly = true)
     public List<ClienteDto> listarOBuscar(String query, Long sucursalId) {
+        return listarOBuscar(query, null, sucursalId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClienteDto> listarOBuscar(String query, Long empresaId, Long sucursalId) {
         List<Cliente> list;
         if (query != null && !query.trim().isEmpty()) {
-            list = clienteRepository.buscarClientes(query.trim(), sucursalId);
+            list = clienteRepository.buscarClientes(query.trim(), empresaId, sucursalId);
         } else {
-            list = clienteRepository.listarPorSucursal(sucursalId);
+            list = clienteRepository.listarPorEmpresaYSucursal(empresaId, sucursalId);
         }
         return list.stream().map(this::mapToDto).collect(Collectors.toList());
     }
@@ -42,6 +50,13 @@ public class ClienteService {
 
     @Transactional
     public ClienteDto crear(ClienteDto dto) {
+        Long empresaId = dto.getEmpresaId();
+        if (empresaId == null && dto.getSucursalId() != null) {
+            empresaId = sucursalRepository.findById(dto.getSucursalId())
+                    .map(Sucursal::getEmpresaId)
+                    .orElse(null);
+        }
+
         Cliente cliente = Cliente.builder()
                 .razonSocial(dto.getRazonSocial().trim())
                 .nombreComercial(dto.getNombreComercial() != null ? dto.getNombreComercial().trim() : null)
@@ -49,6 +64,7 @@ public class ClienteService {
                 .telefono(dto.getTelefono())
                 .correo(dto.getCorreo())
                 .direccion(dto.getDireccion())
+                .empresaId(empresaId)
                 .sucursalId(dto.getSucursalId())
                 .activo(dto.getActivo() != null ? dto.getActivo() : true)
                 .build();
@@ -67,6 +83,9 @@ public class ClienteService {
         cliente.setTelefono(dto.getTelefono());
         cliente.setCorreo(dto.getCorreo());
         cliente.setDireccion(dto.getDireccion());
+        if (dto.getEmpresaId() != null) {
+            cliente.setEmpresaId(dto.getEmpresaId());
+        }
         if (dto.getSucursalId() != null) {
             cliente.setSucursalId(dto.getSucursalId());
         }
@@ -105,6 +124,7 @@ public class ClienteService {
                 .telefono(entity.getTelefono())
                 .correo(entity.getCorreo())
                 .direccion(entity.getDireccion())
+                .empresaId(entity.getEmpresaId())
                 .sucursalId(entity.getSucursalId())
                 .activo(entity.getActivo())
                 .fechaCreacion(entity.getFechaCreacion())

@@ -27,7 +27,7 @@ public class AuthIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("Debe autenticar correctamente a admin y devolver JWT con sucursal")
+    @DisplayName("Debe autenticar correctamente a admin y devolver JWT sin sucursal fija (SaaS Admin)")
     void testLoginExitoso() throws Exception {
         LoginRequestDto req = new LoginRequestDto("ERAMIREZ", "admin123");
 
@@ -38,7 +38,7 @@ public class AuthIntegrationTest {
                 .andExpect(jsonPath("$.token", notNullValue()))
                 .andExpect(jsonPath("$.username", is("ERAMIREZ")))
                 .andExpect(jsonPath("$.rol", is("ROLE_ADMIN")))
-                .andExpect(jsonPath("$.sucursalId", is(1)));
+                .andExpect(jsonPath("$.sucursalId", nullValue()));
     }
 
     @Test

@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.retail.cotizador.cotizaciones.repository.CotizacionRepository;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +32,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
     private final EquipoRepository equipoRepository;
+    private final CotizacionRepository cotizacionRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -104,15 +107,19 @@ public class DataInitializer implements CommandLineRunner {
     private void inicializarUsuarios() {
         log.info("Verificando y asegurando credenciales y sucursales de usuarios...");
 
-        // 1. Asegurar Admin Matriz (ERAMIREZ)
+        // 1. Asegurar Admin Global SaaS (ERAMIREZ) - Sin empresa ni sucursal fija
         usuarioRepository.findByUsername("ERAMIREZ").ifPresentOrElse(u -> {
             boolean mod = false;
             if (u.getPassword() == null || !u.getPassword().startsWith("$2a$")) {
                 u.setPassword(passwordEncoder.encode("admin123"));
                 mod = true;
             }
-            if (u.getSucursalId() == null) {
-                u.setSucursalId(1L);
+            if (u.getSucursalId() != null) {
+                u.setSucursalId(null);
+                mod = true;
+            }
+            if (u.getEmpresaId() != null) {
+                u.setEmpresaId(null);
                 mod = true;
             }
             if (!"ROLE_ADMIN".equals(u.getRol())) {
@@ -125,10 +132,11 @@ public class DataInitializer implements CommandLineRunner {
                     .username("ERAMIREZ")
                     .password(passwordEncoder.encode("admin123"))
                     .nombreCompleto("Ing. Erick Ramírez")
-                    .cargo("Gerente General")
+                    .cargo("Administrador SaaS")
                     .correo("erick.ramirez@retail.com.gt")
                     .rol("ROLE_ADMIN")
-                    .sucursalId(1L)
+                    .empresaId(null)
+                    .sucursalId(null)
                     .activo(true)
                     .build());
         });
@@ -427,9 +435,51 @@ public class DataInitializer implements CommandLineRunner {
             }
         });
         usuarioRepository.findAll().forEach(u -> {
-            if (u.getEmpresaId() == null && !"ROLE_ADMIN".equals(u.getRol())) {
+            if ("ROLE_ADMIN".equals(u.getRol())) {
+                if (u.getEmpresaId() != null || u.getSucursalId() != null) {
+                    u.setEmpresaId(null);
+                    u.setSucursalId(null);
+                    usuarioRepository.save(u);
+                }
+            } else if (u.getEmpresaId() == null) {
                 u.setEmpresaId(defaultEmpresaId);
                 usuarioRepository.save(u);
+            }
+        });
+        clienteRepository.findAll().forEach(c -> {
+            if (c.getEmpresaId() == null) {
+                Long empId = defaultEmpresaId;
+                if (c.getSucursalId() != null) {
+                    empId = sucursalRepository.findById(c.getSucursalId())
+                            .map(Sucursal::getEmpresaId)
+                            .orElse(defaultEmpresaId);
+                }
+                c.setEmpresaId(empId);
+                clienteRepository.save(c);
+            }
+        });
+        equipoRepository.findAll().forEach(e -> {
+            if (e.getEmpresaId() == null) {
+                Long empId = defaultEmpresaId;
+                if (e.getSucursalId() != null) {
+                    empId = sucursalRepository.findById(e.getSucursalId())
+                            .map(Sucursal::getEmpresaId)
+                            .orElse(defaultEmpresaId);
+                }
+                e.setEmpresaId(empId);
+                equipoRepository.save(e);
+            }
+        });
+        cotizacionRepository.findAll().forEach(cot -> {
+            if (cot.getEmpresaId() == null) {
+                Long empId = defaultEmpresaId;
+                if (cot.getSucursalId() != null) {
+                    empId = sucursalRepository.findById(cot.getSucursalId())
+                            .map(Sucursal::getEmpresaId)
+                            .orElse(defaultEmpresaId);
+                }
+                cot.setEmpresaId(empId);
+                cotizacionRepository.save(cot);
             }
         });
     }

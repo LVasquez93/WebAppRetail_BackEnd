@@ -14,6 +14,7 @@ import java.util.List;
 public class CotizacionRequestDto {
 
     private String codigoCotizacion;
+    private Long empresaId;
     private Long sucursalId;
 
     @NotBlank

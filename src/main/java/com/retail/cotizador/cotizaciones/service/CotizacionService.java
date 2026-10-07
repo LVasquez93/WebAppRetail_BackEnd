@@ -8,6 +8,8 @@ import com.retail.cotizador.cotizaciones.dto.ItemDto;
 import com.retail.cotizador.cotizaciones.entity.Cotizacion;
 import com.retail.cotizador.cotizaciones.entity.ItemCotizacion;
 import com.retail.cotizador.cotizaciones.repository.CotizacionRepository;
+import com.retail.cotizador.empresas.entity.Empresa;
+import com.retail.cotizador.empresas.repository.EmpresaRepository;
 import com.retail.cotizador.sucursales.entity.Sucursal;
 import com.retail.cotizador.sucursales.repository.SucursalRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +30,20 @@ public class CotizacionService {
 
     private final CotizacionRepository cotizacionRepository;
     private final SucursalRepository sucursalRepository;
+    private final EmpresaRepository empresaRepository;
 
     @Transactional
     public CotizacionResponseDto crearCotizacion(CotizacionRequestDto dto) {
         Cotizacion cotizacion = mapearEntidadTemporal(dto);
+
+        // Identificar empresa según DTO o sucursal
+        Long empresaId = dto.getEmpresaId();
+        if (empresaId == null && cotizacion.getSucursalId() != null) {
+            empresaId = sucursalRepository.findById(cotizacion.getSucursalId())
+                    .map(Sucursal::getEmpresaId)
+                    .orElse(null);
+        }
+        cotizacion.setEmpresaId(empresaId);
 
         // Identificar prefijo según sucursal
         String prefijo = "COT";
@@ -52,15 +64,17 @@ public class CotizacionService {
 
     @Transactional(readOnly = true)
     public Page<CotizacionResponseDto> listarCotizaciones(Pageable pageable) {
-        return listarCotizaciones(pageable, null);
+        return listarCotizaciones(pageable, null, null);
     }
 
     @Transactional(readOnly = true)
     public Page<CotizacionResponseDto> listarCotizaciones(Pageable pageable, Long sucursalId) {
-        if (sucursalId != null) {
-            return cotizacionRepository.findAllBySucursalId(sucursalId, pageable).map(this::mapearADto);
-        }
-        return cotizacionRepository.findAll(pageable).map(this::mapearADto);
+        return listarCotizaciones(pageable, null, sucursalId);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CotizacionResponseDto> listarCotizaciones(Pageable pageable, Long empresaId, Long sucursalId) {
+        return cotizacionRepository.filtrarCotizaciones(empresaId, sucursalId, pageable).map(this::mapearADto);
     }
 
     @Transactional(readOnly = true)
@@ -77,6 +91,13 @@ public class CotizacionService {
     public Cotizacion mapearEntidadTemporal(CotizacionRequestDto dto) {
         LocalDate fecha = dto.getFechaEmision() != null ? dto.getFechaEmision() : LocalDate.now();
         Long sucursalId = dto.getSucursalId() != null ? dto.getSucursalId() : 1L;
+
+        Long empresaId = dto.getEmpresaId();
+        if (empresaId == null && sucursalId != null) {
+            empresaId = sucursalRepository.findById(sucursalId)
+                    .map(Sucursal::getEmpresaId)
+                    .orElse(null);
+        }
 
         String prefijo = "COT";
         if (sucursalId != null) {
@@ -105,6 +126,7 @@ public class CotizacionService {
 
         Cotizacion cotizacion = Cotizacion.builder()
                 .codigoCotizacion(codigo)
+                .empresaId(empresaId)
                 .sucursalId(sucursalId)
                 .usuarioEmisor(usuario)
                 .fechaEmision(fecha)
@@ -186,6 +208,13 @@ public class CotizacionService {
                 .build()
         ).collect(Collectors.toList());
 
+        String nombreEmpresa = null;
+        if (cotizacion.getEmpresaId() != null) {
+            nombreEmpresa = empresaRepository.findById(cotizacion.getEmpresaId())
+                    .map(Empresa::getNombre)
+                    .orElse("Empresa #" + cotizacion.getEmpresaId());
+        }
+
         String nombreSucursal = "Matriz";
         if (cotizacion.getSucursalId() != null) {
             nombreSucursal = sucursalRepository.findById(cotizacion.getSucursalId())
@@ -196,6 +225,8 @@ public class CotizacionService {
         return CotizacionResponseDto.builder()
                 .id(cotizacion.getId())
                 .codigoCotizacion(cotizacion.getCodigoCotizacion())
+                .empresaId(cotizacion.getEmpresaId())
+                .nombreEmpresa(nombreEmpresa)
                 .sucursalId(cotizacion.getSucursalId())
                 .nombreSucursal(nombreSucursal)
                 .usuarioEmisor(cotizacion.getUsuarioEmisor())

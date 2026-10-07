@@ -33,6 +33,9 @@ public class Cliente {
     @Column(length = 255)
     private String direccion;
 
+    @Column(name = "empresa_id")
+    private Long empresaId;
+
     @Column(name = "sucursal_id")
     private Long sucursalId;
 

@@ -1,5 +1,6 @@
 package com.retail.cotizador.cotizaciones.controller;
 
+import com.retail.cotizador.auth.security.UserPrincipal;
 import com.retail.cotizador.common.dto.PageResponseDto;
 import com.retail.cotizador.cotizaciones.dto.CotizacionRequestDto;
 import com.retail.cotizador.cotizaciones.dto.CotizacionResponseDto;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -28,16 +30,30 @@ public class CotizacionController {
     private final PdfGeneratorService pdfGeneratorService;
 
     @PostMapping
-    public ResponseEntity<CotizacionResponseDto> crear(@Valid @RequestBody CotizacionRequestDto dto) {
+    public ResponseEntity<CotizacionResponseDto> crear(
+            @Valid @RequestBody CotizacionRequestDto dto,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            if (dto.getEmpresaId() == null) {
+                dto.setEmpresaId(userPrincipal.getEmpresaId());
+            }
+        }
         CotizacionResponseDto response = cotizacionService.crearCotizacion(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<PageResponseDto<CotizacionResponseDto>> listar(
+            @RequestParam(required = false) Long empresaId,
             @RequestParam(required = false) Long sucursalId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             Pageable pageable) {
-        Page<CotizacionResponseDto> page = cotizacionService.listarCotizaciones(pageable, sucursalId);
+        // Segregación multi-tenant: Si no es ADMIN del SaaS, restringir estrictamente a su empresa
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            empresaId = userPrincipal.getEmpresaId();
+        }
+
+        Page<CotizacionResponseDto> page = cotizacionService.listarCotizaciones(pageable, empresaId, sucursalId);
         return ResponseEntity.ok(PageResponseDto.from(page));
     }
 
