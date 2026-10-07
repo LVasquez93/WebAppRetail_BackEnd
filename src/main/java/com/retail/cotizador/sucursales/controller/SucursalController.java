@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,8 @@ public class SucursalController {
     private final SucursalService sucursalService;
 
     @GetMapping
-    public ResponseEntity<List<SucursalDto>> listar() {
-        return ResponseEntity.ok(sucursalService.listarActivas());
+    public ResponseEntity<List<SucursalDto>> listar(@RequestParam(required = false) Long empresaId) {
+        return ResponseEntity.ok(sucursalService.listarActivas(empresaId));
     }
 
     @GetMapping("/{id}")
@@ -28,12 +29,21 @@ public class SucursalController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<SucursalDto> crear(@Valid @RequestBody SucursalDto dto) {
         return new ResponseEntity<>(sucursalService.crear(dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
     public ResponseEntity<SucursalDto> actualizar(@PathVariable Long id, @Valid @RequestBody SucursalDto dto) {
         return ResponseEntity.ok(sucursalService.actualizar(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        sucursalService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }

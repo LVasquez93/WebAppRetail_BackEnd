@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 public class SucursalDto {
     private Long id;
+    private Long empresaId;
 
     @NotBlank(message = "El código de la sucursal es obligatorio")
     private String codigo;

@@ -1,5 +1,8 @@
 # Cotizador Backend (Spring Boot + MySQL + PDFBox)
 
+> 📖 **Guía Arquitectónica y Documentación para Agentes IA**:  
+> Para una visión técnica profunda de la arquitectura, diagrama de entidades, reglas de negocio y cómo extender con nuevos módulos, consulta [AGENT_GUIDE.md](AGENT_GUIDE.md).
+
 Backend API REST empresarial para el Sistema de Cotizaciones Retail (El Salvador). Desarrollado con Spring Boot 3.3.4, Java 17, Spring Security con autenticación Stateless JWT (RBAC), base de datos MySQL 8 y motor de generación de PDF con Thymeleaf, OpenHTMLtoPDF y Apache PDFBox.
 
 ---

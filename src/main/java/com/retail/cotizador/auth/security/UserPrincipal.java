@@ -24,6 +24,7 @@ public class UserPrincipal implements UserDetails {
     private final String correo;
     private final String cargo;
     private final String rol;
+    private final Long empresaId;
     private final Long sucursalId;
     private final boolean activo;
     private final Collection<? extends GrantedAuthority> authorities;
@@ -49,6 +50,7 @@ public class UserPrincipal implements UserDetails {
                 .correo(usuario.getCorreo())
                 .cargo(usuario.getCargo())
                 .rol(rol)
+                .empresaId(usuario.getEmpresaId())
                 .sucursalId(usuario.getSucursalId())
                 .activo(usuario.getActivo() != null && usuario.getActivo())
                 .authorities(authorities)

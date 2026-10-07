@@ -16,6 +16,8 @@ public class AuthResponseDto {
     private String correo;
     private String cargo;
     private String rol;
+    private Long empresaId;
+    private String empresaNombre;
     private Long sucursalId;
     private String sucursalCodigo;
     private String sucursalNombre;

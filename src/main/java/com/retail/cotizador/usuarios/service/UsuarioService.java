@@ -21,8 +21,23 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<UsuarioDto> listarOBuscar(String query) {
+        return listarOBuscar(query, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UsuarioDto> listarOBuscar(String query, Long empresaId) {
         List<Usuario> list;
-        if (query != null && !query.trim().isEmpty()) {
+        if (empresaId != null) {
+            list = usuarioRepository.findByEmpresaIdAndActivoTrueOrderByNombreCompletoAsc(empresaId);
+            if (query != null && !query.trim().isEmpty()) {
+                String q = query.trim().toLowerCase();
+                list = list.stream().filter(u ->
+                        (u.getNombreCompleto() != null && u.getNombreCompleto().toLowerCase().contains(q)) ||
+                        (u.getUsername() != null && u.getUsername().toLowerCase().contains(q)) ||
+                        (u.getCargo() != null && u.getCargo().toLowerCase().contains(q))
+                ).collect(Collectors.toList());
+            }
+        } else if (query != null && !query.trim().isEmpty()) {
             list = usuarioRepository.buscarUsuarios(query.trim());
         } else {
             list = usuarioRepository.findByActivoTrueOrderByNombreCompletoAsc();
@@ -58,6 +73,7 @@ public class UsuarioService {
                 .correo(dto.getCorreo())
                 .cargo(dto.getCargo())
                 .rol(dto.getRol() != null && !dto.getRol().trim().isEmpty() ? dto.getRol().trim() : "ROLE_VENTAS")
+                .empresaId(dto.getEmpresaId())
                 .sucursalId(dto.getSucursalId())
                 .activo(dto.getActivo() != null ? dto.getActivo() : true)
                 .build();
@@ -76,6 +92,9 @@ public class UsuarioService {
         usuario.setCargo(dto.getCargo());
         if (dto.getRol() != null && !dto.getRol().trim().isEmpty()) {
             usuario.setRol(dto.getRol().trim());
+        }
+        if (dto.getEmpresaId() != null) {
+            usuario.setEmpresaId(dto.getEmpresaId());
         }
         if (dto.getSucursalId() != null) {
             usuario.setSucursalId(dto.getSucursalId());
@@ -118,6 +137,7 @@ public class UsuarioService {
                 .correo(entity.getCorreo())
                 .cargo(entity.getCargo())
                 .rol(entity.getRol())
+                .empresaId(entity.getEmpresaId())
                 .sucursalId(entity.getSucursalId())
                 .activo(entity.getActivo())
                 .fechaCreacion(entity.getFechaCreacion())

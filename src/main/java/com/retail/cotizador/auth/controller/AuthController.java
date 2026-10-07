@@ -4,6 +4,8 @@ import com.retail.cotizador.auth.dto.AuthResponseDto;
 import com.retail.cotizador.auth.dto.LoginRequestDto;
 import com.retail.cotizador.auth.security.UserPrincipal;
 import com.retail.cotizador.auth.service.JwtService;
+import com.retail.cotizador.empresas.entity.Empresa;
+import com.retail.cotizador.empresas.repository.EmpresaRepository;
 import com.retail.cotizador.sucursales.entity.Sucursal;
 import com.retail.cotizador.sucursales.repository.SucursalRepository;
 import com.retail.cotizador.usuarios.entity.Usuario;
@@ -32,6 +34,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final UsuarioRepository usuarioRepository;
     private final SucursalRepository sucursalRepository;
+    private final EmpresaRepository empresaRepository;
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
@@ -56,9 +59,17 @@ public class AuthController {
             sucursal = sucursalRepository.findById(usuario.getSucursalId()).orElse(null);
         }
 
+        String empresaNombre = null;
+        if (usuario.getEmpresaId() != null) {
+            empresaNombre = empresaRepository.findById(usuario.getEmpresaId())
+                    .map(Empresa::getNombre)
+                    .orElse(null);
+        }
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", usuario.getId());
         claims.put("rol", usuario.getRol());
+        claims.put("empresaId", usuario.getEmpresaId());
         claims.put("sucursalId", usuario.getSucursalId());
         claims.put("nombreCompleto", usuario.getNombreCompleto());
 
@@ -74,6 +85,8 @@ public class AuthController {
                 .correo(usuario.getCorreo())
                 .cargo(usuario.getCargo())
                 .rol(usuario.getRol())
+                .empresaId(usuario.getEmpresaId())
+                .empresaNombre(empresaNombre)
                 .sucursalId(usuario.getSucursalId())
                 .sucursalCodigo(sucursal != null ? sucursal.getCodigo() : null)
                 .sucursalNombre(sucursal != null ? sucursal.getNombre() : null)
@@ -100,6 +113,13 @@ public class AuthController {
             sucursal = sucursalRepository.findById(usuario.getSucursalId()).orElse(null);
         }
 
+        String empresaNombre = null;
+        if (usuario.getEmpresaId() != null) {
+            empresaNombre = empresaRepository.findById(usuario.getEmpresaId())
+                    .map(Empresa::getNombre)
+                    .orElse(null);
+        }
+
         AuthResponseDto response = AuthResponseDto.builder()
                 .token(null) // Token no regenerado aquí
                 .tokenType("Bearer")
@@ -109,6 +129,8 @@ public class AuthController {
                 .correo(usuario.getCorreo())
                 .cargo(usuario.getCargo())
                 .rol(usuario.getRol())
+                .empresaId(usuario.getEmpresaId())
+                .empresaNombre(empresaNombre)
                 .sucursalId(usuario.getSucursalId())
                 .sucursalCodigo(sucursal != null ? sucursal.getCodigo() : null)
                 .sucursalNombre(sucursal != null ? sucursal.getNombre() : null)

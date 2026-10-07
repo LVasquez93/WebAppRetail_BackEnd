@@ -15,6 +15,9 @@ public class Sucursal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "empresa_id")
+    private Long empresaId;
+
     @Column(nullable = false, unique = true, length = 50)
     private String codigo;
 

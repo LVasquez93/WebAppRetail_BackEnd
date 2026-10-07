@@ -19,7 +19,15 @@ public class SucursalService {
 
     @Transactional(readOnly = true)
     public List<SucursalDto> listarActivas() {
-        return sucursalRepository.findAllByActivoTrueOrderByIdAsc().stream()
+        return listarActivas(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SucursalDto> listarActivas(Long empresaId) {
+        List<Sucursal> lista = (empresaId != null)
+                ? sucursalRepository.findAllByEmpresaIdAndActivoTrueOrderByIdAsc(empresaId)
+                : sucursalRepository.findAllByActivoTrueOrderByIdAsc();
+        return lista.stream()
                 .map(this::mapearADto)
                 .collect(Collectors.toList());
     }
@@ -40,6 +48,7 @@ public class SucursalService {
     @Transactional
     public SucursalDto crear(SucursalDto dto) {
         Sucursal sucursal = Sucursal.builder()
+                .empresaId(dto.getEmpresaId())
                 .codigo(dto.getCodigo().trim().toUpperCase())
                 .nombre(dto.getNombre().trim())
                 .razonSocial(dto.getRazonSocial().trim())
@@ -104,6 +113,9 @@ public class SucursalService {
         if (dto.getNotaPredeterminada() != null) {
             sucursal.setNotaPredeterminada(dto.getNotaPredeterminada());
         }
+        if (dto.getEmpresaId() != null) {
+            sucursal.setEmpresaId(dto.getEmpresaId());
+        }
         if (dto.getActivo() != null) {
             sucursal.setActivo(dto.getActivo());
         }
@@ -111,9 +123,18 @@ public class SucursalService {
         return mapearADto(sucursalRepository.save(sucursal));
     }
 
+    @Transactional
+    public void eliminar(Long id) {
+        Sucursal sucursal = sucursalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Sucursal", "id", id));
+        sucursal.setActivo(false);
+        sucursalRepository.save(sucursal);
+    }
+
     private SucursalDto mapearADto(Sucursal s) {
         return SucursalDto.builder()
                 .id(s.getId())
+                .empresaId(s.getEmpresaId())
                 .codigo(s.getCodigo())
                 .nombre(s.getNombre())
                 .razonSocial(s.getRazonSocial())

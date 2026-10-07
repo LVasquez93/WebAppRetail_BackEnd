@@ -34,6 +34,9 @@ public class Usuario {
     @Builder.Default
     private String rol = "ROLE_VENTAS";
 
+    @Column(name = "empresa_id")
+    private Long empresaId;
+
     @Column(name = "sucursal_id")
     private Long sucursalId;
 

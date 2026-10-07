@@ -10,5 +10,7 @@ import java.util.Optional;
 @Repository
 public interface SucursalRepository extends JpaRepository<Sucursal, Long> {
     List<Sucursal> findAllByActivoTrueOrderByIdAsc();
+    List<Sucursal> findAllByEmpresaIdAndActivoTrueOrderByIdAsc(Long empresaId);
+    List<Sucursal> findAllByEmpresaIdOrderByIdAsc(Long empresaId);
     Optional<Sucursal> findByCodigo(String codigo);
 }

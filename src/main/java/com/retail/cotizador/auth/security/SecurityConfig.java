@@ -91,6 +91,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
+                        // Gestión de Empresas: solo ADMIN (SuperAdmin)
+                        .requestMatchers("/api/v1/empresas/**").hasRole("ADMIN")
+
                         // Gestión de Usuarios: solo ADMIN y GERENTE
                         .requestMatchers("/api/v1/usuarios/**").hasAnyRole("ADMIN", "GERENTE")
 

@@ -24,6 +24,7 @@ public class UsuarioDto {
     private String correo;
     private String cargo;
     private String rol;
+    private Long empresaId;
     private Long sucursalId;
     private Boolean activo;
     private LocalDateTime fechaCreacion;

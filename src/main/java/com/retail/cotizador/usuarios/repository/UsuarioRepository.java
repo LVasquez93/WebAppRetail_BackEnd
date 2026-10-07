@@ -14,6 +14,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     List<Usuario> findByActivoTrueOrderByNombreCompletoAsc();
 
+    List<Usuario> findByEmpresaIdAndActivoTrueOrderByNombreCompletoAsc(Long empresaId);
+
+    List<Usuario> findByEmpresaId(Long empresaId);
+
     Optional<Usuario> findByUsername(String username);
 
     @Query("SELECT u FROM Usuario u WHERE u.activo = true AND (" +

@@ -2,6 +2,8 @@ package com.retail.cotizador.common.config;
 
 import com.retail.cotizador.clientes.entity.Cliente;
 import com.retail.cotizador.clientes.repository.ClienteRepository;
+import com.retail.cotizador.empresas.entity.Empresa;
+import com.retail.cotizador.empresas.repository.EmpresaRepository;
 import com.retail.cotizador.equipos.entity.Equipo;
 import com.retail.cotizador.equipos.repository.EquipoRepository;
 import com.retail.cotizador.sucursales.entity.Sucursal;
@@ -23,6 +25,7 @@ import java.util.List;
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
+    private final EmpresaRepository empresaRepository;
     private final SucursalRepository sucursalRepository;
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
@@ -31,14 +34,33 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        inicializarEmpresas();
         inicializarSucursales();
         inicializarUsuarios();
         inicializarClientes();
         inicializarEquipos();
         asegurarSucursalEnRegistrosExistentes();
+        asegurarEmpresaEnRegistrosExistentes();
+    }
+
+    private void inicializarEmpresas() {
+        if (empresaRepository.count() == 0) {
+            log.info("Cargando empresa principal inicial...");
+            Empresa empresa = Empresa.builder()
+                    .nombre("Retail Corporation")
+                    .razonSocial("RETAIL SERVICES EL SALVADOR S.A. DE C.V.")
+                    .nit("0614-010190-102-1")
+                    .telefono("2250-7700")
+                    .correo("contacto.sv@retail.com.sv")
+                    .direccion("Calle Los Bambúes, Col. San Benito, San Salvador")
+                    .activo(true)
+                    .build();
+            empresaRepository.save(empresa);
+        }
     }
 
     private void inicializarSucursales() {
+        Long defaultEmpresaId = empresaRepository.findAll().stream().findFirst().map(Empresa::getId).orElse(1L);
         if (sucursalRepository.count() == 0) {
             log.info("Cargando sucursales iniciales...");
             Sucursal sucursal1 = Sucursal.builder()
@@ -54,6 +76,7 @@ public class DataInitializer implements CommandLineRunner {
                     .cargoFirmante("GERENTE GENERAL")
                     .formaPagoPredeterminada("Crédito 30 días, Transferencia Bancaria o Cheque")
                     .notaPredeterminada("** IMPORTANTE ** Tiempos de entrega y precios, podrían estar sujetos a cambios en inventario")
+                    .empresaId(defaultEmpresaId)
                     .activo(true)
                     .build();
 
@@ -70,6 +93,7 @@ public class DataInitializer implements CommandLineRunner {
                     .cargoFirmante("GERENTE DE SUCURSAL")
                     .formaPagoPredeterminada("Contado contra entrega / Transferencia Bancaria")
                     .notaPredeterminada("** IMPORTANTE ** Precios sujetos a confirmación de stock local en Santa Ana")
+                    .empresaId(defaultEmpresaId)
                     .activo(true)
                     .build();
 
@@ -390,6 +414,22 @@ public class DataInitializer implements CommandLineRunner {
             if (e.getSucursalId() == null) {
                 e.setSucursalId(1L);
                 equipoRepository.save(e);
+            }
+        });
+    }
+
+    private void asegurarEmpresaEnRegistrosExistentes() {
+        Long defaultEmpresaId = empresaRepository.findAll().stream().findFirst().map(Empresa::getId).orElse(1L);
+        sucursalRepository.findAll().forEach(s -> {
+            if (s.getEmpresaId() == null) {
+                s.setEmpresaId(defaultEmpresaId);
+                sucursalRepository.save(s);
+            }
+        });
+        usuarioRepository.findAll().forEach(u -> {
+            if (u.getEmpresaId() == null && !"ROLE_ADMIN".equals(u.getRol())) {
+                u.setEmpresaId(defaultEmpresaId);
+                usuarioRepository.save(u);
             }
         });
     }
