@@ -1,0 +1,344 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1837.8719999999998 1284" width="1837.8719999999998" height="1284" style="--bg:#1F1F1F;--fg:#CCCCCC;--line:#CCCCCC;--accent:#0078D4;--muted:#CCCCCCCC;--surface:#181818;--border:#CCCCCC;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  .mono { font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', ui-monospace, monospace; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+</defs>
+<polyline class="er-relationship" data-entity1="EMPRESAS" data-entity2="SUCURSALES" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Tiene sedes)" points="226.4,209.33333333333334 256.4,209.33333333333334 256.4,684.6333333333333 494.45799999999997,684.6333333333333" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="EMPRESAS" data-entity2="USUARIOS" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Pertenecen a empresa)" points="226.4,124.66666666666667 1031.878,124.66666666666667" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="EMPRESAS" data-entity2="CLIENTES" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Cartera segregada)" points="226.4,294 236.4,294 236.4,1134.6333333333332 951.8779999999999,1134.6333333333332 951.8779999999999,1166.6666666666667 1031.878,1166.6666666666667" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="EMPRESAS" data-entity2="EQUIPOS" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Catálogo por empresa)" points="226.4,167 266.4,167 266.4,441.3333333333333 1031.878,441.3333333333333" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="EMPRESAS" data-entity2="COTIZACIONES" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Emite cotizaciones)" points="226.4,251.66666666666669 246.4,251.66666666666669 246.4,1123.6333333333332 951.8779999999999,1123.6333333333332 951.8779999999999,850 1049.478,850" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="SUCURSALES" data-entity2="USUARIOS" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Usuarios asignados)" points="720.458,595.2333333333333 951.8779999999999,595.2333333333333 951.8779999999999,209.33333333333334 1031.878,209.33333333333334" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="SUCURSALES" data-entity2="CLIENTES" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Clientes por sucursal)" points="720.458,774.0333333333333 730.458,774.0333333333333 730.458,1089.3333333333333 1031.878,1089.3333333333333" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="SUCURSALES" data-entity2="EQUIPOS" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Equipos por sucursal)" points="720.458,654.8333333333334 961.8779999999999,654.8333333333334 961.8779999999999,518.6666666666666 1031.878,518.6666666666666" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="SUCURSALES" data-entity2="COTIZACIONES" data-cardinality1="one" data-cardinality2="zero-many" data-identifying="true" data-label="1:N (Cotizaciones emitidas)" points="720.458,714.4333333333334 730.458,714.4333333333334 730.458,758 1049.478,758" fill="none" stroke="var(--_line)" stroke-width="1" />
+<polyline class="er-relationship" data-entity1="COTIZACIONES" data-entity2="COTIZACION_ITEMS" data-cardinality1="one" data-cardinality2="many" data-identifying="true" data-label="1:N (Líneas cotizadas)" points="1275.478,804 1604.8719999999998,804" fill="none" stroke="var(--_line)" stroke-width="1" />
+<g class="entity" data-id="EMPRESAS" data-label="EMPRESAS">
+  <rect x="40" y="82.33333333333334" width="186.4" height="254" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="40" y="82.33333333333334" width="186.4" height="34" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="133.2" y="99.33333333333334" text-anchor="middle" font-size="13" font-weight="700" fill="var(--_text)" dy="4.55">EMPRESAS</text>
+  <line x1="40" y1="116.33333333333334" x2="226.4" y2="116.33333333333334" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <rect x="46" y="120.33333333333334" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="57.155" y="127.33333333333334" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">PK</text>
+  <text x="76.31" y="127.33333333333334" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="218.4" y="127.33333333333334" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">id</tspan></text>
+  <text x="48" y="149.33333333333334" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="218.4" y="149.33333333333334" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">nombre</tspan></text>
+  <text x="48" y="171.33333333333334" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="218.4" y="171.33333333333334" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">razon_social</tspan></text>
+  <text x="48" y="193.33333333333334" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="218.4" y="193.33333333333334" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">nit</tspan></text>
+  <text x="48" y="215.33333333333334" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="218.4" y="215.33333333333334" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">telefono</tspan></text>
+  <text x="48" y="237.33333333333334" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="218.4" y="237.33333333333334" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">correo</tspan></text>
+  <text x="48" y="259.33333333333337" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="218.4" y="259.33333333333337" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">direccion</tspan></text>
+  <text x="48" y="281.33333333333337" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">longtext</tspan></text>
+  <text x="218.4" y="281.33333333333337" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">logo_base64</tspan></text>
+  <text x="48" y="303.33333333333337" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">boolean</tspan></text>
+  <text x="218.4" y="303.33333333333337" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">activo</tspan></text>
+  <text x="48" y="325.33333333333337" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">datetime</tspan></text>
+  <text x="218.4" y="325.33333333333337" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">fecha_creacion</tspan></text>
+</g>
+<g class="entity" data-id="SUCURSALES" data-label="SUCURSALES">
+  <rect x="494.45799999999997" y="535.6333333333333" width="226" height="298" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="494.45799999999997" y="535.6333333333333" width="226" height="34" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="607.458" y="552.6333333333333" text-anchor="middle" font-size="13" font-weight="700" fill="var(--_text)" dy="4.55">SUCURSALES</text>
+  <line x1="494.45799999999997" y1="569.6333333333333" x2="720.458" y2="569.6333333333333" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <rect x="500.45799999999997" y="573.6333333333333" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="511.61299999999994" y="580.6333333333333" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">PK</text>
+  <text x="530.7679999999999" y="580.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="712.458" y="580.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">id</tspan></text>
+  <rect x="500.45799999999997" y="595.6333333333333" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="511.61299999999994" y="602.6333333333333" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="530.7679999999999" y="602.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="712.458" y="602.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">empresa_id</tspan></text>
+  <rect x="500.45799999999997" y="617.6333333333333" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="511.61299999999994" y="624.6333333333333" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">UK</text>
+  <text x="530.7679999999999" y="624.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="712.458" y="624.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">codigo</tspan></text>
+  <text x="502.45799999999997" y="646.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="712.458" y="646.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">nombre</tspan></text>
+  <text x="502.45799999999997" y="668.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="712.458" y="668.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">razon_social</tspan></text>
+  <text x="502.45799999999997" y="690.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="712.458" y="690.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">prefijo_cotizacion</tspan></text>
+  <text x="502.45799999999997" y="712.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">longtext</tspan></text>
+  <text x="712.458" y="712.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">header_banner_base64</tspan></text>
+  <text x="502.45799999999997" y="734.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">longtext</tspan></text>
+  <text x="712.458" y="734.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">footer_banner_base64</tspan></text>
+  <text x="502.45799999999997" y="756.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">longtext</tspan></text>
+  <text x="712.458" y="756.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">firma_base64</tspan></text>
+  <text x="502.45799999999997" y="778.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="712.458" y="778.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">nombre_firmante</tspan></text>
+  <text x="502.45799999999997" y="800.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="712.458" y="800.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">cargo_firmante</tspan></text>
+  <text x="502.45799999999997" y="822.6333333333333" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">boolean</tspan></text>
+  <text x="712.458" y="822.6333333333333" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">activo</tspan></text>
+</g>
+<g class="entity" data-id="USUARIOS" data-label="USUARIOS">
+  <rect x="1031.878" y="40" width="186.4" height="254" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="1031.878" y="40" width="186.4" height="34" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="1125.078" y="57" text-anchor="middle" font-size="13" font-weight="700" fill="var(--_text)" dy="4.55">USUARIOS</text>
+  <line x1="1031.878" y1="74" x2="1218.278" y2="74" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <rect x="1037.878" y="78" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="85" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">PK</text>
+  <text x="1068.1879999999999" y="85" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1210.278" y="85" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">id</tspan></text>
+  <rect x="1037.878" y="100" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="107" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">UK</text>
+  <text x="1068.1879999999999" y="107" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1210.278" y="107" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">username</tspan></text>
+  <text x="1039.878" y="129" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1210.278" y="129" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">password</tspan></text>
+  <text x="1039.878" y="151" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1210.278" y="151" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">nombre_completo</tspan></text>
+  <text x="1039.878" y="173" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1210.278" y="173" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">correo</tspan></text>
+  <text x="1039.878" y="195" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1210.278" y="195" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">cargo</tspan></text>
+  <text x="1039.878" y="217" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1210.278" y="217" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">rol</tspan></text>
+  <g><title>NULL para SuperAdmin SaaS</title>
+  <rect x="1037.878" y="232" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="239" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1068.1879999999999" y="239" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1210.278" y="239" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">empresa_id</tspan></text>
+  </g>
+  <g><title>NULL para SuperAdmin SaaS</title>
+  <rect x="1037.878" y="254" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="261" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1068.1879999999999" y="261" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1210.278" y="261" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">sucursal_id</tspan></text>
+  </g>
+  <text x="1039.878" y="283" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">boolean</tspan></text>
+  <text x="1210.278" y="283" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">activo</tspan></text>
+</g>
+<g class="entity" data-id="CLIENTES" data-label="CLIENTES">
+  <rect x="1031.878" y="1012" width="206.2" height="232" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="1031.878" y="1012" width="206.2" height="34" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="1134.9779999999998" y="1029" text-anchor="middle" font-size="13" font-weight="700" fill="var(--_text)" dy="4.55">CLIENTES</text>
+  <line x1="1031.878" y1="1046" x2="1238.078" y2="1046" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <rect x="1037.878" y="1050" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="1057" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">PK</text>
+  <text x="1068.1879999999999" y="1057" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1230.078" y="1057" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">id</tspan></text>
+  <rect x="1037.878" y="1072" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="1079" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1068.1879999999999" y="1079" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1230.078" y="1079" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">empresa_id</tspan></text>
+  <rect x="1037.878" y="1094" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="1101" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1068.1879999999999" y="1101" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1230.078" y="1101" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">sucursal_id</tspan></text>
+  <text x="1039.878" y="1123" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1230.078" y="1123" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">razon_social</tspan></text>
+  <text x="1039.878" y="1145" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1230.078" y="1145" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">nombre_comercial</tspan></text>
+  <text x="1039.878" y="1167" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1230.078" y="1167" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">contacto_principal</tspan></text>
+  <text x="1039.878" y="1189" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1230.078" y="1189" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">telefono</tspan></text>
+  <text x="1039.878" y="1211" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1230.078" y="1211" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">correo</tspan></text>
+  <text x="1039.878" y="1233" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">boolean</tspan></text>
+  <text x="1230.078" y="1233" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">activo</tspan></text>
+</g>
+<g class="entity" data-id="EQUIPOS" data-label="EQUIPOS">
+  <rect x="1031.878" y="364" width="278.79999999999995" height="232" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="1031.878" y="364" width="278.79999999999995" height="34" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="1171.2779999999998" y="381" text-anchor="middle" font-size="13" font-weight="700" fill="var(--_text)" dy="4.55">EQUIPOS</text>
+  <line x1="1031.878" y1="398" x2="1310.6779999999999" y2="398" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <rect x="1037.878" y="402" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="409" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">PK</text>
+  <text x="1068.1879999999999" y="409" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1302.6779999999999" y="409" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">id</tspan></text>
+  <rect x="1037.878" y="424" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="431" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1068.1879999999999" y="431" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1302.6779999999999" y="431" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">empresa_id</tspan></text>
+  <rect x="1037.878" y="446" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1049.033" y="453" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1068.1879999999999" y="453" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1302.6779999999999" y="453" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">sucursal_id</tspan></text>
+  <text x="1039.878" y="475" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">text</tspan></text>
+  <text x="1302.6779999999999" y="475" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">descripcion</tspan></text>
+  <text x="1039.878" y="497" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1302.6779999999999" y="497" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">part_number</tspan></text>
+  <text x="1039.878" y="519" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">text</tspan></text>
+  <text x="1302.6779999999999" y="519" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">caracteristicas</tspan></text>
+  <text x="1039.878" y="541" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">decimal</tspan></text>
+  <text x="1302.6779999999999" y="541" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">precio_referencial</tspan></text>
+  <text x="1039.878" y="563" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1302.6779999999999" y="563" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">tiempo_entrega_predeterminado</tspan></text>
+  <text x="1039.878" y="585" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">boolean</tspan></text>
+  <text x="1302.6779999999999" y="585" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">activo</tspan></text>
+</g>
+<g class="entity" data-id="COTIZACIONES" data-label="COTIZACIONES">
+  <rect x="1049.478" y="666" width="226" height="276" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="1049.478" y="666" width="226" height="34" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="1162.478" y="683" text-anchor="middle" font-size="13" font-weight="700" fill="var(--_text)" dy="4.55">COTIZACIONES</text>
+  <line x1="1049.478" y1="700" x2="1275.478" y2="700" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <rect x="1055.478" y="704" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1066.633" y="711" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">PK</text>
+  <text x="1085.788" y="711" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1267.478" y="711" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">id</tspan></text>
+  <rect x="1055.478" y="726" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1066.633" y="733" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">UK</text>
+  <text x="1085.788" y="733" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1267.478" y="733" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">codigo_cotizacion</tspan></text>
+  <rect x="1055.478" y="748" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1066.633" y="755" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1085.788" y="755" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1267.478" y="755" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">empresa_id</tspan></text>
+  <rect x="1055.478" y="770" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1066.633" y="777" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1085.788" y="777" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1267.478" y="777" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">sucursal_id</tspan></text>
+  <text x="1057.478" y="799" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1267.478" y="799" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">usuario_emisor</tspan></text>
+  <text x="1057.478" y="821" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">date</tspan></text>
+  <text x="1267.478" y="821" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">fecha_emision</tspan></text>
+  <text x="1057.478" y="843" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1267.478" y="843" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">razon_social_cliente</tspan></text>
+  <text x="1057.478" y="865" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">decimal</tspan></text>
+  <text x="1267.478" y="865" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">subtotal_sin_iva</tspan></text>
+  <g><title>13% IVA</title>
+  <text x="1057.478" y="887" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">decimal</tspan></text>
+  <text x="1267.478" y="887" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">monto_iva</tspan></text>
+  </g>
+  <text x="1057.478" y="909" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">decimal</tspan></text>
+  <text x="1267.478" y="909" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">total_inversion</tspan></text>
+  <text x="1057.478" y="931" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1267.478" y="931" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">total_en_letras</tspan></text>
+</g>
+<g class="entity" data-id="COTIZACION_ITEMS" data-label="COTIZACION_ITEMS">
+  <rect x="1604.8719999999998" y="677" width="193" height="254" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="1604.8719999999998" y="677" width="193" height="34" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="1701.3719999999998" y="694" text-anchor="middle" font-size="13" font-weight="700" fill="var(--_text)" dy="4.55">COTIZACION_ITEMS</text>
+  <line x1="1604.8719999999998" y1="711" x2="1797.8719999999998" y2="711" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <rect x="1610.8719999999998" y="715" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1622.0269999999998" y="722" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">PK</text>
+  <text x="1641.1819999999998" y="722" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1789.8719999999998" y="722" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">id</tspan></text>
+  <rect x="1610.8719999999998" y="737" width="22.31" height="14" rx="2" ry="2" fill="var(--_key-badge)" />
+  <text x="1622.0269999999998" y="744" text-anchor="middle" dy="0.35em" font-size="9" font-weight="600" fill="var(--_text-sec)">FK</text>
+  <text x="1641.1819999999998" y="744" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">bigint</tspan></text>
+  <text x="1789.8719999999998" y="744" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">cotizacion_id</tspan></text>
+  <text x="1612.8719999999998" y="766" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">int</tspan></text>
+  <text x="1789.8719999999998" y="766" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">item_numero</tspan></text>
+  <text x="1612.8719999999998" y="788" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">text</tspan></text>
+  <text x="1789.8719999999998" y="788" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">descripcion_equipo</tspan></text>
+  <text x="1612.8719999999998" y="810" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1789.8719999999998" y="810" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">part_number</tspan></text>
+  <text x="1612.8719999999998" y="832" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">text</tspan></text>
+  <text x="1789.8719999999998" y="832" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">caracteristicas</tspan></text>
+  <text x="1612.8719999999998" y="854" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">varchar</tspan></text>
+  <text x="1789.8719999999998" y="854" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">tiempo_entrega</tspan></text>
+  <text x="1612.8719999999998" y="876" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">int</tspan></text>
+  <text x="1789.8719999999998" y="876" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">cantidad</tspan></text>
+  <text x="1612.8719999999998" y="898" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">decimal</tspan></text>
+  <text x="1789.8719999999998" y="898" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">precio_unitario</tspan></text>
+  <text x="1612.8719999999998" y="920" class="mono" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-muted)">decimal</tspan></text>
+  <text x="1789.8719999999998" y="920" class="mono" text-anchor="end" dy="0.35em" font-size="11" font-weight="400"><tspan fill="var(--_text-sec)">total_linea</tspan></text>
+</g>
+<line x1="230.4" y1="203.33333333333334" x2="230.4" y2="215.33333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="234.4" y1="203.33333333333334" x2="234.4" y2="215.33333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="490.45799999999997" y1="691.6333333333333" x2="478.45799999999997" y2="684.6333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="490.45799999999997" y1="684.6333333333333" x2="478.45799999999997" y2="684.6333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="490.45799999999997" y1="677.6333333333333" x2="478.45799999999997" y2="684.6333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="474.45799999999997" cy="684.6333333333333" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="230.4" y1="118.66666666666667" x2="230.4" y2="130.66666666666669" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="234.4" y1="118.66666666666667" x2="234.4" y2="130.66666666666669" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="131.66666666666669" x2="1015.8779999999999" y2="124.66666666666667" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="124.66666666666667" x2="1015.8779999999999" y2="124.66666666666667" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="117.66666666666667" x2="1015.8779999999999" y2="124.66666666666667" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="1011.8779999999999" cy="124.66666666666667" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="230.4" y1="288" x2="230.4" y2="300" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="234.4" y1="288" x2="234.4" y2="300" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="1173.6666666666667" x2="1015.8779999999999" y2="1166.6666666666667" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="1166.6666666666667" x2="1015.8779999999999" y2="1166.6666666666667" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="1159.6666666666667" x2="1015.8779999999999" y2="1166.6666666666667" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="1011.8779999999999" cy="1166.6666666666667" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="230.4" y1="161" x2="230.4" y2="173" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="234.4" y1="161" x2="234.4" y2="173" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="448.3333333333333" x2="1015.8779999999999" y2="441.3333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="441.3333333333333" x2="1015.8779999999999" y2="441.3333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="434.3333333333333" x2="1015.8779999999999" y2="441.3333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="1011.8779999999999" cy="441.3333333333333" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="230.4" y1="245.66666666666669" x2="230.4" y2="257.6666666666667" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="234.4" y1="245.66666666666669" x2="234.4" y2="257.6666666666667" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1045.478" y1="857" x2="1033.478" y2="850" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1045.478" y1="850" x2="1033.478" y2="850" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1045.478" y1="843" x2="1033.478" y2="850" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="1029.478" cy="850" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="724.458" y1="589.2333333333333" x2="724.458" y2="601.2333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="728.458" y1="589.2333333333333" x2="728.458" y2="601.2333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="216.33333333333334" x2="1015.8779999999999" y2="209.33333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="209.33333333333334" x2="1015.8779999999999" y2="209.33333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="202.33333333333334" x2="1015.8779999999999" y2="209.33333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="1011.8779999999999" cy="209.33333333333334" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="724.458" y1="768.0333333333333" x2="724.458" y2="780.0333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="728.458" y1="768.0333333333333" x2="728.458" y2="780.0333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="1096.3333333333333" x2="1015.8779999999999" y2="1089.3333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="1089.3333333333333" x2="1015.8779999999999" y2="1089.3333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="1082.3333333333333" x2="1015.8779999999999" y2="1089.3333333333333" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="1011.8779999999999" cy="1089.3333333333333" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="724.458" y1="648.8333333333334" x2="724.458" y2="660.8333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="728.458" y1="648.8333333333334" x2="728.458" y2="660.8333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="525.6666666666666" x2="1015.8779999999999" y2="518.6666666666666" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="518.6666666666666" x2="1015.8779999999999" y2="518.6666666666666" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1027.878" y1="511.66666666666663" x2="1015.8779999999999" y2="518.6666666666666" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="1011.8779999999999" cy="518.6666666666666" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="724.458" y1="708.4333333333334" x2="724.458" y2="720.4333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="728.458" y1="708.4333333333334" x2="728.458" y2="720.4333333333334" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1045.478" y1="765" x2="1033.478" y2="758" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1045.478" y1="758" x2="1033.478" y2="758" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1045.478" y1="751" x2="1033.478" y2="758" stroke="var(--_line)" stroke-width="1.25" />
+<circle cx="1029.478" cy="758" r="4" fill="var(--bg)" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1279.478" y1="798" x2="1279.478" y2="810" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1283.478" y1="798" x2="1283.478" y2="810" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1600.8719999999998" y1="811" x2="1588.8719999999998" y2="804" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1600.8719999999998" y1="804" x2="1588.8719999999998" y2="804" stroke="var(--_line)" stroke-width="1.25" />
+<line x1="1600.8719999999998" y1="797" x2="1588.8719999999998" y2="804" stroke="var(--_line)" stroke-width="1.25" />
+<rect x="212.37099999999998" y="540.8623333333334" width="88.058" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="256.4" y="551.0123333333333" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Tiene sedes)</text>
+<rect x="561.053" y="114.51666666666667" width="136.17200000000003" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="629.139" y="124.66666666666667" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Pertenecen a empresa)</text>
+<rect x="176.333" y="1112.9223333333334" width="120.13400000000003" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="236.4" y="1123.0723333333335" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Cartera segregada)</text>
+<rect x="425.66833333333324" y="431.18333333333334" width="132.60800000000003" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="491.97233333333327" y="441.3333333333333" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Catálogo por empresa)</text>
+<rect x="280.4873333333333" y="1113.4833333333331" width="116.57000000000001" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="338.77233333333334" y="1123.6333333333332" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Emite cotizaciones)</text>
+<rect x="889.435" y="467.84333333333336" width="124.886" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="951.8779999999999" y="477.99333333333334" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Usuarios asignados)</text>
+<rect x="665.342" y="1067.243333333333" width="130.23200000000003" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="730.458" y="1077.3933333333332" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Clientes por sucursal)</text>
+<rect x="878.5413333333333" y="644.6833333333334" width="131.42000000000002" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="944.2513333333334" y="654.8333333333334" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Equipos por sucursal)</text>
+<rect x="797.7716666666668" y="747.85" width="130.82600000000002" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="863.1846666666668" y="758" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Cotizaciones emitidas)</text>
+<rect x="1383.078" y="793.85" width="114.19400000000003" height="20.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="1440.175" y="804" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">1:N (Líneas cotizadas)</text>
+</svg>
