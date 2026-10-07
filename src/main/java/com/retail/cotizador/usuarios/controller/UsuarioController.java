@@ -1,11 +1,13 @@
 package com.retail.cotizador.usuarios.controller;
 
+import com.retail.cotizador.auth.security.UserPrincipal;
 import com.retail.cotizador.usuarios.dto.UsuarioDto;
 import com.retail.cotizador.usuarios.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +22,14 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<List<UsuarioDto>> listarOBuscar(
             @RequestParam(required = false) String q,
-            @RequestParam(required = false) Long empresaId) {
-        return ResponseEntity.ok(usuarioService.listarOBuscar(q, empresaId));
+            @RequestParam(required = false) Long empresaId,
+            @RequestParam(required = false) Boolean soloAdmins,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            empresaId = userPrincipal.getEmpresaId();
+            soloAdmins = false;
+        }
+        return ResponseEntity.ok(usuarioService.listarOBuscar(q, empresaId, soloAdmins));
     }
 
     @GetMapping("/{id}")
@@ -30,13 +38,30 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioDto> crear(@Valid @RequestBody UsuarioDto dto) {
+    public ResponseEntity<UsuarioDto> crear(
+            @Valid @RequestBody UsuarioDto dto,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            dto.setEmpresaId(userPrincipal.getEmpresaId());
+            if ("ROLE_ADMIN".equalsIgnoreCase(dto.getRol())) {
+                dto.setRol("ROLE_VENTAS");
+            }
+        }
         UsuarioDto creado = usuarioService.crear(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioDto> actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioDto dto) {
+    public ResponseEntity<UsuarioDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody UsuarioDto dto,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            dto.setEmpresaId(userPrincipal.getEmpresaId());
+            if ("ROLE_ADMIN".equalsIgnoreCase(dto.getRol())) {
+                dto.setRol("ROLE_VENTAS");
+            }
+        }
         return ResponseEntity.ok(usuarioService.actualizar(id, dto));
     }
 

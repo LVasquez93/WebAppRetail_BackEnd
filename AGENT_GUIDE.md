@@ -205,13 +205,17 @@ erDiagram
   - Asignado fijamente a su empresa y sucursal. Acceso limitado a emitir cotizaciones y ver el catálogo e historial de su sucursal.
 
 ### Aislamiento Multi-Tenant en Backend:
-- En `ClienteController`, `EquipoController` y `CotizacionController`, las consultas resuelven el `UserPrincipal`:
+- En `ClienteController`, `EquipoController`, `SucursalController` y `CotizacionController`, las consultas resuelven el `UserPrincipal`:
   - Si el usuario tiene `ROLE_ADMIN` y envía un `empresaId` opcional, se filtra por esa empresa; si no lo envía, se consultan todas.
-  - Para cualquier usuario regular (`ROLE_GERENTE`, `ROLE_VENTAS`), el servidor sobreescribe cualquier parámetro entrante con `userPrincipal.getEmpresaId()`, impidiendo acceso cruzado entre empresas a nivel de base de datos.
+  - Para cualquier usuario regular (`ROLE_GERENTE`, `ROLE_VENTAS`), el servidor sobreescribe automáticamente cualquier parámetro entrante con `userPrincipal.getEmpresaId()`, impidiendo acceso cruzado entre organizaciones clientes tanto en sucursales, catálogos como cotizaciones.
+- En `UsuarioController` y `UsuarioService`:
+  - Soporta parámetro `soloAdmins=true` para que el SuperAdmin gestione la lista de administradores globales de la plataforma SaaS (`ROLE_ADMIN` con `empresaId = null` y `sucursalId = null`).
+  - Al actualizar o crear un usuario con `ROLE_ADMIN`, los campos de inquilino se persisten explícitamente en `null` para garantizar su alcance global en el SaaS.
+  - Si no es `ROLE_ADMIN`, cualquier creación o edición de usuario queda forzada a la empresa del usuario en sesión (`userPrincipal.getEmpresaId()`) y no puede auto-otorgarse el rol de administrador.
 
 ### Reglas de Acceso en Endpoints ([SecurityConfig.java](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/auth/security/SecurityConfig.java)):
 - `/api/v1/auth/**` (incluye `/login` y `/health`): **Público**.
-- `GET /api/v1/sucursales/**`: Cualquier autenticado (`ADMIN`, `GERENTE`, `VENTAS`).
+- `GET /api/v1/sucursales/**`: Cualquier autenticado (`ADMIN`, `GERENTE`, `VENTAS`), con segregación forzada por empresa en el controlador para no-admins.
 - `POST /api/v1/sucursales/**`, `PUT`, `DELETE`: Solo `ADMIN` y `GERENTE`.
 - `/api/v1/usuarios/**`: Solo `ADMIN` y `GERENTE`.
 - `/api/v1/clientes/lote`, `/api/v1/equipos/lote`: Solo `ADMIN` y `GERENTE`.

@@ -20,6 +20,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByUsername(String username);
 
+    List<Usuario> findByRolAndActivoTrueOrderByNombreCompletoAsc(String rol);
+
     @Query("SELECT u FROM Usuario u WHERE u.activo = true AND (" +
            "LOWER(u.nombreCompleto) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) OR " +

@@ -21,13 +21,28 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<UsuarioDto> listarOBuscar(String query) {
-        return listarOBuscar(query, null);
+        return listarOBuscar(query, null, null);
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioDto> listarOBuscar(String query, Long empresaId) {
+        return listarOBuscar(query, empresaId, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UsuarioDto> listarOBuscar(String query, Long empresaId, Boolean soloAdmins) {
         List<Usuario> list;
-        if (empresaId != null) {
+        if (Boolean.TRUE.equals(soloAdmins)) {
+            list = usuarioRepository.findByRolAndActivoTrueOrderByNombreCompletoAsc("ROLE_ADMIN");
+            if (query != null && !query.trim().isEmpty()) {
+                String q = query.trim().toLowerCase();
+                list = list.stream().filter(u ->
+                        (u.getNombreCompleto() != null && u.getNombreCompleto().toLowerCase().contains(q)) ||
+                        (u.getUsername() != null && u.getUsername().toLowerCase().contains(q)) ||
+                        (u.getCargo() != null && u.getCargo().toLowerCase().contains(q))
+                ).collect(Collectors.toList());
+            }
+        } else if (empresaId != null) {
             list = usuarioRepository.findByEmpresaIdAndActivoTrueOrderByNombreCompletoAsc(empresaId);
             if (query != null && !query.trim().isEmpty()) {
                 String q = query.trim().toLowerCase();
@@ -66,15 +81,19 @@ public class UsuarioService {
                 ? passwordEncoder.encode(rawPassword.trim())
                 : passwordEncoder.encode("123456");
 
+        String rol = dto.getRol() != null && !dto.getRol().trim().isEmpty() ? dto.getRol().trim() : "ROLE_VENTAS";
+        Long empresaId = "ROLE_ADMIN".equalsIgnoreCase(rol) ? null : dto.getEmpresaId();
+        Long sucursalId = "ROLE_ADMIN".equalsIgnoreCase(rol) ? null : dto.getSucursalId();
+
         Usuario usuario = Usuario.builder()
                 .username(dto.getUsername().trim().toUpperCase())
                 .password(encodedPassword)
                 .nombreCompleto(dto.getNombreCompleto().trim())
                 .correo(dto.getCorreo())
                 .cargo(dto.getCargo())
-                .rol(dto.getRol() != null && !dto.getRol().trim().isEmpty() ? dto.getRol().trim() : "ROLE_VENTAS")
-                .empresaId(dto.getEmpresaId())
-                .sucursalId(dto.getSucursalId())
+                .rol(rol)
+                .empresaId(empresaId)
+                .sucursalId(sucursalId)
                 .activo(dto.getActivo() != null ? dto.getActivo() : true)
                 .build();
 
@@ -93,10 +112,11 @@ public class UsuarioService {
         if (dto.getRol() != null && !dto.getRol().trim().isEmpty()) {
             usuario.setRol(dto.getRol().trim());
         }
-        if (dto.getEmpresaId() != null) {
+        if ("ROLE_ADMIN".equalsIgnoreCase(usuario.getRol())) {
+            usuario.setEmpresaId(null);
+            usuario.setSucursalId(null);
+        } else {
             usuario.setEmpresaId(dto.getEmpresaId());
-        }
-        if (dto.getSucursalId() != null) {
             usuario.setSucursalId(dto.getSucursalId());
         }
         if (dto.getActivo() != null) {

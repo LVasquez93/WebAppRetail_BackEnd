@@ -1,5 +1,6 @@
 package com.retail.cotizador.sucursales.controller;
 
+import com.retail.cotizador.auth.security.UserPrincipal;
 import com.retail.cotizador.sucursales.dto.SucursalDto;
 import com.retail.cotizador.sucursales.service.SucursalService;
 import jakarta.validation.Valid;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +21,12 @@ public class SucursalController {
     private final SucursalService sucursalService;
 
     @GetMapping
-    public ResponseEntity<List<SucursalDto>> listar(@RequestParam(required = false) Long empresaId) {
+    public ResponseEntity<List<SucursalDto>> listar(
+            @RequestParam(required = false) Long empresaId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            empresaId = userPrincipal.getEmpresaId();
+        }
         return ResponseEntity.ok(sucursalService.listarActivas(empresaId));
     }
 
