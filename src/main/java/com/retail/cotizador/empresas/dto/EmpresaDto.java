@@ -25,7 +25,8 @@ public class EmpresaDto {
     private Boolean activo;
     private LocalDateTime fechaCreacion;
 
-    // Campos opcionales para aprovisionar el Gerente de la empresa durante la creación
+    // Campos para el Gerente de la empresa
+    private Long gerenteId;
     private String gerenteUsername;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String gerentePassword;

@@ -4,6 +4,8 @@ import com.retail.cotizador.common.exception.ResourceNotFoundException;
 import com.retail.cotizador.empresas.dto.EmpresaDto;
 import com.retail.cotizador.empresas.entity.Empresa;
 import com.retail.cotizador.empresas.repository.EmpresaRepository;
+import com.retail.cotizador.sucursales.entity.Sucursal;
+import com.retail.cotizador.sucursales.repository.SucursalRepository;
 import com.retail.cotizador.usuarios.entity.Usuario;
 import com.retail.cotizador.usuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class EmpresaService {
 
     private final EmpresaRepository empresaRepository;
+    private final SucursalRepository sucursalRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -60,7 +63,28 @@ public class EmpresaService {
 
         Empresa guardada = empresaRepository.save(empresa);
 
-        // Si se enviaron datos para el Gerente inicial de la empresa, crearlo automáticamente
+        // 1. Auto-crear la sucursal matriz inicial de la nueva empresa
+        Sucursal sucursalMatriz = Sucursal.builder()
+                .codigo("SUC_" + guardada.getId() + "_01")
+                .nombre(guardada.getNombre() + " (Casa Matriz)")
+                .razonSocial(guardada.getRazonSocial() != null && !guardada.getRazonSocial().isBlank() ? guardada.getRazonSocial() : guardada.getNombre())
+                .nombreComercial(guardada.getNombre())
+                .direccion(guardada.getDireccion() != null && !guardada.getDireccion().isBlank() ? guardada.getDireccion() : "Oficina Central")
+                .telefono(guardada.getTelefono())
+                .correo(guardada.getCorreo())
+                .prefijoCotizacion("COT" + guardada.getId())
+                .nombreFirmante(dto.getGerenteNombreCompleto() != null && !dto.getGerenteNombreCompleto().isBlank()
+                        ? dto.getGerenteNombreCompleto().trim().toUpperCase() : "GERENTE GENERAL")
+                .cargoFirmante("GERENTE GENERAL")
+                .formaPagoPredeterminada("Crédito 30 días, Transferencia Bancaria o Cheque")
+                .notaPredeterminada("** IMPORTANTE ** Tiempos de entrega y precios, podrían estar sujetos a cambios en inventario")
+                .empresaId(guardada.getId())
+                .activo(true)
+                .build();
+        Sucursal sucursalGuardada = sucursalRepository.save(sucursalMatriz);
+        log.info("Sucursal matriz inicial creada para empresa {}: {}", guardada.getNombre(), sucursalGuardada.getNombre());
+
+        // 2. Si se enviaron datos para el Gerente inicial de la empresa, crearlo automáticamente
         if (dto.getGerenteUsername() != null && !dto.getGerenteUsername().isBlank()
                 && dto.getGerentePassword() != null && !dto.getGerentePassword().isBlank()) {
             String username = dto.getGerenteUsername().trim().toUpperCase();
@@ -74,7 +98,7 @@ public class EmpresaService {
                         .cargo("GERENTE GENERAL / DUEÑO")
                         .rol("ROLE_GERENTE")
                         .empresaId(guardada.getId())
-                        .sucursalId(null) // El gerente supervisa todas las sucursales de su empresa
+                        .sucursalId(sucursalGuardada.getId())
                         .activo(true)
                         .build();
                 usuarioRepository.save(gerente);
@@ -105,7 +129,55 @@ public class EmpresaService {
             empresa.setActivo(dto.getActivo());
         }
 
-        return mapearADto(empresaRepository.save(empresa));
+        Empresa empresaActualizada = empresaRepository.save(empresa);
+
+        // Actualizar o aprovisionar el Gerente de la empresa si se enviaron datos
+        if (dto.getGerenteUsername() != null && !dto.getGerenteUsername().isBlank()) {
+            String username = dto.getGerenteUsername().trim().toUpperCase();
+            Usuario gerente = usuarioRepository.findByEmpresaId(empresaActualizada.getId()).stream()
+                    .filter(u -> "ROLE_GERENTE".equals(u.getRol()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (gerente != null) {
+                if (!gerente.getUsername().equalsIgnoreCase(username)) {
+                    if (usuarioRepository.findByUsername(username).isEmpty()) {
+                        gerente.setUsername(username);
+                    }
+                }
+                if (dto.getGerenteNombreCompleto() != null && !dto.getGerenteNombreCompleto().isBlank()) {
+                    gerente.setNombreCompleto(dto.getGerenteNombreCompleto().trim());
+                }
+                if (dto.getGerenteCorreo() != null) {
+                    gerente.setCorreo(dto.getGerenteCorreo().trim());
+                }
+                if (dto.getGerentePassword() != null && !dto.getGerentePassword().isBlank()) {
+                    gerente.setPassword(passwordEncoder.encode(dto.getGerentePassword().trim()));
+                }
+                usuarioRepository.save(gerente);
+                log.info("Gerente de empresa {} actualizado exitosamente", empresaActualizada.getNombre());
+            } else if (dto.getGerentePassword() != null && !dto.getGerentePassword().isBlank()) {
+                Long sucursalId = sucursalRepository.findAllByEmpresaIdOrderByIdAsc(empresaActualizada.getId()).stream()
+                        .findFirst().map(Sucursal::getId).orElse(null);
+
+                Usuario nuevoGerente = Usuario.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode(dto.getGerentePassword().trim()))
+                        .nombreCompleto(dto.getGerenteNombreCompleto() != null && !dto.getGerenteNombreCompleto().isBlank()
+                                ? dto.getGerenteNombreCompleto().trim() : "GERENTE " + empresaActualizada.getNombre())
+                        .correo(dto.getGerenteCorreo())
+                        .cargo("GERENTE GENERAL / DUEÑO")
+                        .rol("ROLE_GERENTE")
+                        .empresaId(empresaActualizada.getId())
+                        .sucursalId(sucursalId)
+                        .activo(true)
+                        .build();
+                usuarioRepository.save(nuevoGerente);
+                log.info("Nuevo gerente creado para empresa {}: {}", empresaActualizada.getNombre(), username);
+            }
+        }
+
+        return mapearADto(empresaActualizada);
     }
 
     @Transactional
@@ -117,6 +189,11 @@ public class EmpresaService {
     }
 
     private EmpresaDto mapearADto(Empresa e) {
+        Usuario gerente = usuarioRepository.findByEmpresaId(e.getId()).stream()
+                .filter(u -> "ROLE_GERENTE".equals(u.getRol()))
+                .findFirst()
+                .orElse(null);
+
         return EmpresaDto.builder()
                 .id(e.getId())
                 .nombre(e.getNombre())
@@ -128,6 +205,10 @@ public class EmpresaService {
                 .logoBase64(e.getLogoBase64())
                 .activo(e.getActivo())
                 .fechaCreacion(e.getFechaCreacion())
+                .gerenteId(gerente != null ? gerente.getId() : null)
+                .gerenteUsername(gerente != null ? gerente.getUsername() : null)
+                .gerenteNombreCompleto(gerente != null ? gerente.getNombreCompleto() : null)
+                .gerenteCorreo(gerente != null ? gerente.getCorreo() : null)
                 .build();
     }
 }
