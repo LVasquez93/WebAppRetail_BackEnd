@@ -43,8 +43,13 @@ public class UsuarioController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
             dto.setEmpresaId(userPrincipal.getEmpresaId());
-            if ("ROLE_ADMIN".equalsIgnoreCase(dto.getRol())) {
+            if ("ROLE_GERENTE_SUCURSAL".equals(userPrincipal.getRol())) {
                 dto.setRol("ROLE_VENTAS");
+                dto.setSucursalId(userPrincipal.getSucursalId());
+            } else if ("ROLE_GERENTE_GENERAL".equals(userPrincipal.getRol()) || "ROLE_GERENTE".equals(userPrincipal.getRol())) {
+                if ("ROLE_ADMIN".equalsIgnoreCase(dto.getRol())) {
+                    dto.setRol("ROLE_VENTAS");
+                }
             }
         }
         UsuarioDto creado = usuarioService.crear(dto);
@@ -58,8 +63,13 @@ public class UsuarioController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
             dto.setEmpresaId(userPrincipal.getEmpresaId());
-            if ("ROLE_ADMIN".equalsIgnoreCase(dto.getRol())) {
+            if ("ROLE_GERENTE_SUCURSAL".equals(userPrincipal.getRol())) {
                 dto.setRol("ROLE_VENTAS");
+                dto.setSucursalId(userPrincipal.getSucursalId());
+            } else if ("ROLE_GERENTE_GENERAL".equals(userPrincipal.getRol()) || "ROLE_GERENTE".equals(userPrincipal.getRol())) {
+                if ("ROLE_ADMIN".equalsIgnoreCase(dto.getRol())) {
+                    dto.setRol("ROLE_VENTAS");
+                }
             }
         }
         return ResponseEntity.ok(usuarioService.actualizar(id, dto));

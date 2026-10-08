@@ -38,9 +38,28 @@ public class UserPrincipal implements UserDetails {
             rol = "ROLE_" + rol;
         }
 
-        List<GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority(rol)
-        );
+        List<GrantedAuthority> authorities = new java.util.ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(rol));
+        if ("ROLE_ADMIN".equals(rol)) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE_GENERAL"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE_SUCURSAL"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_VENTAS"));
+        } else if ("ROLE_GERENTE_GENERAL".equals(rol)) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE_SUCURSAL"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_VENTAS"));
+        } else if ("ROLE_GERENTE_SUCURSAL".equals(rol)) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_VENTAS"));
+        } else if ("ROLE_GERENTE".equals(rol)) {
+            if (usuario.getSucursalId() != null) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE_SUCURSAL"));
+            } else {
+                authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE_GENERAL"));
+            }
+            authorities.add(new SimpleGrantedAuthority("ROLE_VENTAS"));
+        }
 
         return UserPrincipal.builder()
                 .id(usuario.getId())

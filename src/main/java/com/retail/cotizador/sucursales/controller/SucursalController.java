@@ -36,19 +36,32 @@ public class SucursalController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
-    public ResponseEntity<SucursalDto> crear(@Valid @RequestBody SucursalDto dto) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL')")
+    public ResponseEntity<SucursalDto> crear(
+            @Valid @RequestBody SucursalDto dto,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            dto.setEmpresaId(userPrincipal.getEmpresaId());
+        }
         return new ResponseEntity<>(sucursalService.crear(dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
-    public ResponseEntity<SucursalDto> actualizar(@PathVariable Long id, @Valid @RequestBody SucursalDto dto) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL') or hasRole('GERENTE_SUCURSAL') or hasRole('GERENTE')")
+    public ResponseEntity<SucursalDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody SucursalDto dto,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && "ROLE_GERENTE_SUCURSAL".equals(userPrincipal.getRol())) {
+            if (userPrincipal.getSucursalId() != null && !userPrincipal.getSucursalId().equals(id)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         return ResponseEntity.ok(sucursalService.actualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         sucursalService.eliminar(id);
         return ResponseEntity.noContent().build();

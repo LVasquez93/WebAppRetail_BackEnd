@@ -34,9 +34,11 @@ public class DataInitializer implements CommandLineRunner {
     private final EquipoRepository equipoRepository;
     private final CotizacionRepository cotizacionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.retail.cotizador.rbac.service.RbacService rbacService;
 
     @Override
     public void run(String... args) {
+        rbacService.inicializarPermisosSiNoExisten();
         inicializarEmpresas();
         inicializarSucursales();
         inicializarUsuarios();
@@ -141,19 +143,54 @@ public class DataInitializer implements CommandLineRunner {
                     .build());
         });
 
-        // 2. Asegurar Gerente Sucursal 2 (CVALENCIA)
+        // 2. Asegurar Gerente General de Empresa (GGENERAL01)
+        Long defaultEmpresaId = empresaRepository.findAll().stream().findFirst().map(Empresa::getId).orElse(1L);
+        usuarioRepository.findByUsername("GGENERAL01").ifPresentOrElse(u -> {
+            boolean mod = false;
+            if (u.getPassword() == null || !u.getPassword().startsWith("$2a$")) {
+                u.setPassword(passwordEncoder.encode("gerente123"));
+                mod = true;
+            }
+            if (u.getEmpresaId() == null) {
+                u.setEmpresaId(defaultEmpresaId);
+                mod = true;
+            }
+            if (!"ROLE_GERENTE_GENERAL".equals(u.getRol())) {
+                u.setRol("ROLE_GERENTE_GENERAL");
+                mod = true;
+            }
+            if (mod) usuarioRepository.save(u);
+        }, () -> {
+            usuarioRepository.save(Usuario.builder()
+                    .username("GGENERAL01")
+                    .password(passwordEncoder.encode("gerente123"))
+                    .nombreCompleto("Ing. Roberto Sandoval")
+                    .cargo("Gerente General")
+                    .correo("roberto.sandoval@retail.com.sv")
+                    .rol("ROLE_GERENTE_GENERAL")
+                    .empresaId(defaultEmpresaId)
+                    .sucursalId(null)
+                    .activo(true)
+                    .build());
+        });
+
+        // 3. Asegurar Gerente Sucursal 2 (CVALENCIA)
         usuarioRepository.findByUsername("CVALENCIA").ifPresentOrElse(u -> {
             boolean mod = false;
             if (u.getPassword() == null || !u.getPassword().startsWith("$2a$")) {
                 u.setPassword(passwordEncoder.encode("gerente123"));
                 mod = true;
             }
+            if (u.getEmpresaId() == null) {
+                u.setEmpresaId(defaultEmpresaId);
+                mod = true;
+            }
             if (u.getSucursalId() == null) {
                 u.setSucursalId(2L);
                 mod = true;
             }
-            if (!"ROLE_GERENTE".equals(u.getRol())) {
-                u.setRol("ROLE_GERENTE");
+            if (!"ROLE_GERENTE_SUCURSAL".equals(u.getRol())) {
+                u.setRol("ROLE_GERENTE_SUCURSAL");
                 mod = true;
             }
             if (mod) usuarioRepository.save(u);
@@ -164,7 +201,8 @@ public class DataInitializer implements CommandLineRunner {
                     .nombreCompleto("Lic. Carlos Valencia")
                     .cargo("Gerente de Sucursal")
                     .correo("carlos.valencia@retail.com.sv")
-                    .rol("ROLE_GERENTE")
+                    .rol("ROLE_GERENTE_SUCURSAL")
+                    .empresaId(defaultEmpresaId)
                     .sucursalId(2L)
                     .activo(true)
                     .build());

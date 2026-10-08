@@ -94,20 +94,24 @@ public class SecurityConfig {
                         // Gestión de Empresas: solo ADMIN (SuperAdmin)
                         .requestMatchers("/api/v1/empresas/**").hasRole("ADMIN")
 
-                        // Gestión de Usuarios: solo ADMIN y GERENTE
-                        .requestMatchers("/api/v1/usuarios/**").hasAnyRole("ADMIN", "GERENTE")
+                        // Módulo RBAC: lectura para cualquier autenticado, modificación y reset solo ADMIN
+                        .requestMatchers(HttpMethod.GET, "/api/v1/rbac/**").authenticated()
+                        .requestMatchers("/api/v1/rbac/**").hasRole("ADMIN")
 
-                        // Gestión de Sucursales: GET para todos los autenticados; modificación solo ADMIN y GERENTE
+                        // Gestión de Usuarios: solo ADMIN, GERENTE_GENERAL, GERENTE_SUCURSAL y GERENTE
+                        .requestMatchers("/api/v1/usuarios/**").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE_SUCURSAL", "GERENTE")
+
+                        // Gestión de Sucursales: GET para todos los autenticados; creación y eliminación solo ADMIN y GERENTE_GENERAL; actualización incluye GERENTE_SUCURSAL
                         .requestMatchers(HttpMethod.GET, "/api/v1/sucursales/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/sucursales/**").hasAnyRole("ADMIN", "GERENTE")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/sucursales/**").hasAnyRole("ADMIN", "GERENTE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/sucursales/**").hasAnyRole("ADMIN", "GERENTE")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/sucursales/**").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/sucursales/**").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE_SUCURSAL", "GERENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/sucursales/**").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE")
 
-                        // Operaciones avanzadas de catálogos (lotes y eliminación): solo ADMIN y GERENTE
-                        .requestMatchers("/api/v1/clientes/lote").hasAnyRole("ADMIN", "GERENTE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/clientes/**").hasAnyRole("ADMIN", "GERENTE")
-                        .requestMatchers("/api/v1/equipos/lote").hasAnyRole("ADMIN", "GERENTE")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/equipos/**").hasAnyRole("ADMIN", "GERENTE")
+                        // Operaciones avanzadas de catálogos (lotes y eliminación):
+                        .requestMatchers("/api/v1/clientes/lote").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE_SUCURSAL", "GERENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/clientes/**").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE")
+                        .requestMatchers("/api/v1/equipos/lote").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE_SUCURSAL", "GERENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/equipos/**").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE")
 
                         // Cotizaciones y lectura de clientes/equipos para el cotizador: cualquier autenticado (VENTAS, GERENTE, ADMIN)
                         .requestMatchers("/api/v1/cotizaciones/**").authenticated()
