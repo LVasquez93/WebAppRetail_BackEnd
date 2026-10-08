@@ -34,8 +34,9 @@ public class CotizacionController {
             @Valid @RequestBody CotizacionRequestDto dto,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
-            if (dto.getEmpresaId() == null) {
-                dto.setEmpresaId(userPrincipal.getEmpresaId());
+            dto.setEmpresaId(userPrincipal.getEmpresaId());
+            if (!"ROLE_GERENTE_GENERAL".equals(userPrincipal.getRol()) && userPrincipal.getSucursalId() != null) {
+                dto.setSucursalId(userPrincipal.getSucursalId());
             }
         }
         CotizacionResponseDto response = cotizacionService.crearCotizacion(dto);
@@ -51,6 +52,10 @@ public class CotizacionController {
         // Segregación multi-tenant: Si no es ADMIN del SaaS, restringir estrictamente a su empresa
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
             empresaId = userPrincipal.getEmpresaId();
+            // Si no es Gerente General (es Gerente de Sucursal o Vendedor), forzar estrictamente su sede asignada
+            if (!"ROLE_GERENTE_GENERAL".equals(userPrincipal.getRol()) && userPrincipal.getSucursalId() != null) {
+                sucursalId = userPrincipal.getSucursalId();
+            }
         }
 
         Page<CotizacionResponseDto> page = cotizacionService.listarCotizaciones(pageable, empresaId, sucursalId);
@@ -58,13 +63,20 @@ public class CotizacionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CotizacionResponseDto> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<CotizacionResponseDto> obtenerPorId(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Cotizacion cotizacion = cotizacionService.obtenerEntidadPorId(id);
+        validarAccesoCotizacion(cotizacion, userPrincipal);
         return ResponseEntity.ok(cotizacionService.obtenerPorId(id));
     }
 
     @GetMapping("/{id}/pdf")
-    public ResponseEntity<byte[]> descargarPdf(@PathVariable Long id) {
+    public ResponseEntity<byte[]> descargarPdf(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Cotizacion cotizacion = cotizacionService.obtenerEntidadPorId(id);
+        validarAccesoCotizacion(cotizacion, userPrincipal);
         byte[] pdfBytes = pdfGeneratorService.generarCotizacionPdf(cotizacion);
         
         HttpHeaders headers = new HttpHeaders();
@@ -73,6 +85,20 @@ public class CotizacionController {
         headers.setContentDisposition(ContentDisposition.inline().filename(filename, StandardCharsets.UTF_8).build());
         
         return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    }
+
+    private void validarAccesoCotizacion(Cotizacion cotizacion, UserPrincipal userPrincipal) {
+        if (userPrincipal == null || "ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            return;
+        }
+        if (cotizacion.getEmpresaId() != null && !cotizacion.getEmpresaId().equals(userPrincipal.getEmpresaId())) {
+            throw new org.springframework.security.access.AccessDeniedException("Acceso denegado: Cotización de otra organización.");
+        }
+        if (!"ROLE_GERENTE_GENERAL".equals(userPrincipal.getRol()) && userPrincipal.getSucursalId() != null) {
+            if (cotizacion.getSucursalId() != null && !cotizacion.getSucursalId().equals(userPrincipal.getSucursalId())) {
+                throw new org.springframework.security.access.AccessDeniedException("Acceso denegado: Cotización de otra sucursal.");
+            }
+        }
     }
 
     @PostMapping("/preview-pdf")

@@ -253,8 +253,11 @@ El sistema implementa una jerarquía en cascada donde cada rol superior hereda a
 
 ### Aislamiento Multi-Tenant en Backend:
 - En `ClienteController`, `EquipoController`, `SucursalController` y `CotizacionController`, las consultas resuelven el `UserPrincipal`:
-  - Si el usuario tiene `ROLE_ADMIN` y envía un `empresaId` opcional, se filtra por esa empresa; si no lo envía, se consultan todas.
+  - Si el usuario tiene `ROLE_ADMIN` y envía un `empresaId` o `sucursalId` opcional, se filtra por esa selección; si no lo envía, se consultan todas.
   - Para cualquier usuario regular, el servidor sobreescribe automáticamente cualquier parámetro entrante con `userPrincipal.getEmpresaId()`, impidiendo acceso cruzado entre organizaciones clientes.
+  - **Aislamiento Estricto de Sucursales en Cotizaciones (`CotizacionController.java`)**:
+    - Si el usuario no es `ROLE_ADMIN` ni `ROLE_GERENTE_GENERAL` (es decir, `ROLE_GERENTE_SUCURSAL` o `ROLE_VENTAS`), el backend **fuerza y sobrescribe** `sucursalId = userPrincipal.getSucursalId()` en `listar` y `crear`.
+    - En `obtenerPorId` y `descargarPdf`, el backend invoca `validarAccesoCotizacion`: si la cotización no pertenece a la empresa del usuario (o a su sucursal si tiene sede fija), lanza de inmediato `403 AccessDeniedException`.
 - En `SucursalController`:
   - `POST /api/v1/sucursales`: Restringido a `ROLE_ADMIN` y `ROLE_GERENTE_GENERAL`.
   - `PUT /api/v1/sucursales/{id}`: `ROLE_GERENTE_SUCURSAL` solo puede actualizar su propia sucursal (`id == userPrincipal.getSucursalId()`). Si intenta modificar otra, responde `403 Forbidden`.
