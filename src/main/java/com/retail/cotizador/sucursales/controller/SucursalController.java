@@ -31,7 +31,15 @@ public class SucursalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SucursalDto> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<SucursalDto> obtenerPorId(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            var entidad = sucursalService.obtenerEntidadPorId(id);
+            if (!userPrincipal.getEmpresaId().equals(entidad.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         return ResponseEntity.ok(sucursalService.obtenerPorId(id));
     }
 
@@ -52,17 +60,32 @@ public class SucursalController {
             @PathVariable Long id,
             @Valid @RequestBody SucursalDto dto,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        if (userPrincipal != null && "ROLE_GERENTE_SUCURSAL".equals(userPrincipal.getRol())) {
-            if (userPrincipal.getSucursalId() != null && !userPrincipal.getSucursalId().equals(id)) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            var entidad = sucursalService.obtenerEntidadPorId(id);
+            if (!userPrincipal.getEmpresaId().equals(entidad.getEmpresaId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
+            if ("ROLE_GERENTE_SUCURSAL".equals(userPrincipal.getRol())) {
+                if (userPrincipal.getSucursalId() != null && !userPrincipal.getSucursalId().equals(id)) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                }
+            }
+            dto.setEmpresaId(userPrincipal.getEmpresaId());
         }
         return ResponseEntity.ok(sucursalService.actualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            var entidad = sucursalService.obtenerEntidadPorId(id);
+            if (!userPrincipal.getEmpresaId().equals(entidad.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         sucursalService.eliminar(id);
         return ResponseEntity.noContent().build();
     }

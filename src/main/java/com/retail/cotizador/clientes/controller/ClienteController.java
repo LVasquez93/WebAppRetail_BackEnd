@@ -35,8 +35,16 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteDto> obtenerPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(clienteService.obtenerPorId(id));
+    public ResponseEntity<ClienteDto> obtenerPorId(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        ClienteDto dto = clienteService.obtenerPorId(id);
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            if (dto.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(dto.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
@@ -44,16 +52,24 @@ public class ClienteController {
             @Valid @RequestBody ClienteDto dto,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
-            if (dto.getEmpresaId() == null) {
-                dto.setEmpresaId(userPrincipal.getEmpresaId());
-            }
+            dto.setEmpresaId(userPrincipal.getEmpresaId());
         }
         ClienteDto creado = clienteService.crear(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteDto> actualizar(@PathVariable Long id, @Valid @RequestBody ClienteDto dto) {
+    public ResponseEntity<ClienteDto> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ClienteDto dto,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            ClienteDto existente = clienteService.obtenerPorId(id);
+            if (existente.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(existente.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            dto.setEmpresaId(userPrincipal.getEmpresaId());
+        }
         return ResponseEntity.ok(clienteService.actualizar(id, dto));
     }
 
@@ -63,16 +79,22 @@ public class ClienteController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
             for (ClienteDto d : dtos) {
-                if (d.getEmpresaId() == null) {
-                    d.setEmpresaId(userPrincipal.getEmpresaId());
-                }
+                d.setEmpresaId(userPrincipal.getEmpresaId());
             }
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.crearLote(dtos));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            ClienteDto existente = clienteService.obtenerPorId(id);
+            if (existente.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(existente.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         clienteService.eliminar(id);
         return ResponseEntity.noContent().build();
     }

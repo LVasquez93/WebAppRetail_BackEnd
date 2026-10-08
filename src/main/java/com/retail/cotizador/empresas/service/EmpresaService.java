@@ -96,7 +96,7 @@ public class EmpresaService {
                                 ? dto.getGerenteNombreCompleto().trim() : "GERENTE " + guardada.getNombre())
                         .correo(dto.getGerenteCorreo())
                         .cargo("GERENTE GENERAL / DUEÑO")
-                        .rol("ROLE_GERENTE")
+                        .rol("ROLE_GERENTE_GENERAL")
                         .empresaId(guardada.getId())
                         .sucursalId(sucursalGuardada.getId())
                         .activo(true)
@@ -135,7 +135,7 @@ public class EmpresaService {
         if (dto.getGerenteUsername() != null && !dto.getGerenteUsername().isBlank()) {
             String username = dto.getGerenteUsername().trim().toUpperCase();
             Usuario gerente = usuarioRepository.findByEmpresaId(empresaActualizada.getId()).stream()
-                    .filter(u -> "ROLE_GERENTE".equals(u.getRol()))
+                    .filter(u -> "ROLE_GERENTE_GENERAL".equals(u.getRol()) || "ROLE_GERENTE".equals(u.getRol()))
                     .findFirst()
                     .orElse(null);
 
@@ -154,6 +154,7 @@ public class EmpresaService {
                 if (dto.getGerentePassword() != null && !dto.getGerentePassword().isBlank()) {
                     gerente.setPassword(passwordEncoder.encode(dto.getGerentePassword().trim()));
                 }
+                gerente.setRol("ROLE_GERENTE_GENERAL");
                 usuarioRepository.save(gerente);
                 log.info("Gerente de empresa {} actualizado exitosamente", empresaActualizada.getNombre());
             } else if (dto.getGerentePassword() != null && !dto.getGerentePassword().isBlank()) {
@@ -167,7 +168,7 @@ public class EmpresaService {
                                 ? dto.getGerenteNombreCompleto().trim() : "GERENTE " + empresaActualizada.getNombre())
                         .correo(dto.getGerenteCorreo())
                         .cargo("GERENTE GENERAL / DUEÑO")
-                        .rol("ROLE_GERENTE")
+                        .rol("ROLE_GERENTE_GENERAL")
                         .empresaId(empresaActualizada.getId())
                         .sucursalId(sucursalId)
                         .activo(true)
@@ -190,7 +191,7 @@ public class EmpresaService {
 
     private EmpresaDto mapearADto(Empresa e) {
         Usuario gerente = usuarioRepository.findByEmpresaId(e.getId()).stream()
-                .filter(u -> "ROLE_GERENTE".equals(u.getRol()))
+                .filter(u -> "ROLE_GERENTE_GENERAL".equals(u.getRol()) || "ROLE_GERENTE".equals(u.getRol()))
                 .findFirst()
                 .orElse(null);
 

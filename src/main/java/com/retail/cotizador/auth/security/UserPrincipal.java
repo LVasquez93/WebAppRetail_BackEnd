@@ -38,6 +38,13 @@ public class UserPrincipal implements UserDetails {
             rol = "ROLE_" + rol;
         }
 
+        // Normalización y jerarquía de roles
+        if ("ROLE_GERENTE".equals(rol)) {
+            String cargoUpper = usuario.getCargo() != null ? usuario.getCargo().toUpperCase() : "";
+            boolean esSedeEspecifica = cargoUpper.contains("SUCURSAL") || cargoUpper.contains("SEDE");
+            rol = esSedeEspecifica ? "ROLE_GERENTE_SUCURSAL" : "ROLE_GERENTE_GENERAL";
+        }
+
         List<GrantedAuthority> authorities = new java.util.ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(rol));
         if ("ROLE_ADMIN".equals(rol)) {
@@ -51,13 +58,6 @@ public class UserPrincipal implements UserDetails {
             authorities.add(new SimpleGrantedAuthority("ROLE_VENTAS"));
         } else if ("ROLE_GERENTE_SUCURSAL".equals(rol)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE"));
-            authorities.add(new SimpleGrantedAuthority("ROLE_VENTAS"));
-        } else if ("ROLE_GERENTE".equals(rol)) {
-            if (usuario.getSucursalId() != null) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE_SUCURSAL"));
-            } else {
-                authorities.add(new SimpleGrantedAuthority("ROLE_GERENTE_GENERAL"));
-            }
             authorities.add(new SimpleGrantedAuthority("ROLE_VENTAS"));
         }
 

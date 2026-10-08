@@ -298,16 +298,39 @@ public class DataInitializer implements CommandLineRunner {
                     .build());
         });
 
-        // 5. Asegurar cualquier otro usuario existente
+        // 5. Asegurar y migrar roles y accesos de usuarios existentes
         usuarioRepository.findAll().forEach(u -> {
             boolean mod = false;
             if (u.getPassword() == null || !u.getPassword().startsWith("$2a$")) {
                 u.setPassword(passwordEncoder.encode("123456"));
                 mod = true;
             }
-            if (u.getSucursalId() == null) {
-                u.setSucursalId(1L);
+            // Migrar ROLE_GERENTE histórico
+            if ("ROLE_GERENTE".equals(u.getRol())) {
+                String cargo = u.getCargo() != null ? u.getCargo().toUpperCase() : "";
+                if (cargo.contains("SUCURSAL") || cargo.contains("SEDE")) {
+                    u.setRol("ROLE_GERENTE_SUCURSAL");
+                } else {
+                    u.setRol("ROLE_GERENTE_GENERAL");
+                }
                 mod = true;
+            }
+            // Si es ROLE_ADMIN, nunca debe tener empresaId ni sucursalId fijados
+            if ("ROLE_ADMIN".equals(u.getRol())) {
+                if (u.getSucursalId() != null) {
+                    u.setSucursalId(null);
+                    mod = true;
+                }
+                if (u.getEmpresaId() != null) {
+                    u.setEmpresaId(null);
+                    mod = true;
+                }
+            } else if (!"ROLE_GERENTE_GENERAL".equals(u.getRol())) {
+                // Solo asignar sede por defecto a roles subordinados de sede (Gerente de Sede o Ventas)
+                if (u.getSucursalId() == null) {
+                    u.setSucursalId(1L);
+                    mod = true;
+                }
             }
             if (mod) usuarioRepository.save(u);
         });

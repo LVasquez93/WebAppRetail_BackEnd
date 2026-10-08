@@ -231,7 +231,7 @@ El sistema implementa una jerarquía en cascada donde cada rol superior hereda a
    - Asignado a su sucursal (`empresaId` y `sucursalId`).
    - Consulta catálogos y emite cotizaciones para su sucursal asignada.
 
-*Compatibilidad hacia atrás*: Usuarios legados con `ROLE_GERENTE` mapean automáticamente a `ROLE_GERENTE_SUCURSAL` (si tienen `sucursalId`) o `ROLE_GERENTE_GENERAL` (si `sucursalId` es nulo). En `UserPrincipal`, los roles superiores declaran GrantedAuthorities adicionales en cascada.
+*Compatibilidad hacia atrás y normalización robusta*: Usuarios legados con `ROLE_GERENTE` son normalizados automáticamente en `UserPrincipal` y mediante migración en caliente en `DataInitializer`: si su cargo especifica una sede ("SUCURSAL"/"SEDE") se tipifican como `ROLE_GERENTE_SUCURSAL`, y en caso contrario como `ROLE_GERENTE_GENERAL` (Dueño/Gerente de Empresa).
 
 ### Módulo Dinámico e Interactivo de RBAC (Roles y Permisos Granulares por Usuario):
 - **Entidad `RolPermisoConfig`**: Persiste en base de datos la matriz de permisos por rol en formato JSON (`rbac_rol_permisos`).
@@ -246,26 +246,31 @@ El sistema implementa una jerarquía en cascada donde cada rol superior hereda a
   - `PUT /api/v1/rbac/matriz`: Actualiza asignación de permisos por rol (solo `ROLE_ADMIN`).
   - `POST /api/v1/rbac/reset`: Restablece configuración a los presets recomendados por defecto (solo `ROLE_ADMIN`).
   - `GET /api/v1/rbac/catalogo`: Devuelve la lista de definiciones del catálogo de capacidades disponibles.
-  - `GET /api/v1/rbac/usuarios/{id}/permisos`: Devuelve los permisos efectivos, predeterminados del rol y especiales del usuario.
-  - `PUT /api/v1/rbac/usuarios/{id}/permisos`: Guarda permisos especiales personalizados para un usuario específico.
-  - `POST /api/v1/rbac/usuarios/{id}/permisos/reset`: Elimina permisos personalizados y restablece el usuario a su rol base.
+  - `GET /api/v1/rbac/usuarios/{id}/permisos`: Devuelve los permisos efectivos, predeterminados del rol y especiales del usuario (blindado contra IDOR: no-admin solo puede consultar usuarios de su propia empresa).
+  - `PUT /api/v1/rbac/usuarios/{id}/permisos`: Guarda permisos especiales personalizados para un usuario específico (verificación estricta de pertenencia a `empresaId`).
+  - `POST /api/v1/rbac/usuarios/{id}/permisos/reset`: Elimina permisos personalizados y restablece el usuario a su rol base (verificación estricta de pertenencia a `empresaId`).
   - `GET /api/v1/rbac/mis-permisos`: Devuelve los códigos de permisos efectivos asignados al usuario en sesión.
 
-### Aislamiento Multi-Tenant en Backend:
-- En `ClienteController`, `EquipoController`, `SucursalController` y `CotizacionController`, las consultas resuelven el `UserPrincipal`:
+### Aislamiento Multi-Tenant y Prevención de IDOR en Backend:
+- En `ClienteController`, `EquipoController`, `SucursalController`, `UsuarioController`, `EmpresaController` y `CotizacionController`, las consultas resuelven el `UserPrincipal`:
   - Si el usuario tiene `ROLE_ADMIN` y envía un `empresaId` o `sucursalId` opcional, se filtra por esa selección; si no lo envía, se consultan todas.
   - Para cualquier usuario regular, el servidor sobreescribe automáticamente cualquier parámetro entrante con `userPrincipal.getEmpresaId()`, impidiendo acceso cruzado entre organizaciones clientes.
   - **Aislamiento Estricto de Sucursales en Cotizaciones (`CotizacionController.java`)**:
     - Si el usuario no es `ROLE_ADMIN` ni `ROLE_GERENTE_GENERAL` (es decir, `ROLE_GERENTE_SUCURSAL` o `ROLE_VENTAS`), el backend **fuerza y sobrescribe** `sucursalId = userPrincipal.getSucursalId()` en `listar` y `crear`.
     - En `obtenerPorId` y `descargarPdf`, el backend invoca `validarAccesoCotizacion`: si la cotización no pertenece a la empresa del usuario (o a su sucursal si tiene sede fija), lanza de inmediato `403 AccessDeniedException`.
-- En `SucursalController`:
-  - `POST /api/v1/sucursales`: Restringido a `ROLE_ADMIN` y `ROLE_GERENTE_GENERAL`.
-  - `PUT /api/v1/sucursales/{id}`: `ROLE_GERENTE_SUCURSAL` solo puede actualizar su propia sucursal (`id == userPrincipal.getSucursalId()`). Si intenta modificar otra, responde `403 Forbidden`.
-  - `DELETE /api/v1/sucursales/{id}`: Restringido a `ROLE_ADMIN` y `ROLE_GERENTE_GENERAL`.
-- En `UsuarioController`:
-  - `ROLE_ADMIN` puede crear cualquier rol (`ROLE_ADMIN`, `ROLE_GERENTE_GENERAL`, `ROLE_GERENTE_SUCURSAL`, `ROLE_VENTAS`).
-  - `ROLE_GERENTE_GENERAL` puede crear `ROLE_GERENTE_SUCURSAL` y `ROLE_VENTAS` (forzando su `empresaId`).
-  - `ROLE_GERENTE_SUCURSAL` solo puede crear `ROLE_VENTAS` (forzando su `empresaId` y su `sucursalId`).
+  - **Protección IDOR en Sucursales (`SucursalController.java`)**:
+    - `POST /api/v1/sucursales`: Restringido a `ROLE_ADMIN` y `ROLE_GERENTE_GENERAL`.
+    - `PUT /api/v1/sucursales/{id}`: Valida que la sucursal pertenezca a la empresa del solicitante. `ROLE_GERENTE_SUCURSAL` solo puede actualizar su propia sucursal (`id == userPrincipal.getSucursalId()`).
+    - `DELETE /api/v1/sucursales/{id}`: Restringido a `ROLE_ADMIN` y `ROLE_GERENTE_GENERAL`, validando que pertenezca al `empresaId` del solicitante.
+    - `GET /api/v1/sucursales/{id}`: Blindado contra consultas cruzadas entre inquilinos.
+  - **Protección IDOR en Catálogos y Usuarios (`ClienteController.java`, `EquipoController.java`, `UsuarioController.java`)**:
+    - En operaciones `POST` unitarias y `/lote`, se sobrescribe obligatoriamente el `empresaId` por el del usuario autenticado.
+    - En `PUT`, `DELETE` y `GET /{id}`, se valida previamente que el registro existente pertenezca a la misma organización del operador.
+  - **Jerarquía en Creación de Usuarios (`UsuarioController.java`)**:
+    - `ROLE_ADMIN` puede crear cualquier rol (`ROLE_ADMIN`, `ROLE_GERENTE_GENERAL`, `ROLE_GERENTE_SUCURSAL`, `ROLE_VENTAS`).
+    - `ROLE_GERENTE_GENERAL` puede crear `ROLE_GERENTE_SUCURSAL` y `ROLE_VENTAS` (forzando su `empresaId`).
+    - `ROLE_GERENTE_SUCURSAL` solo puede crear `ROLE_VENTAS` (forzando su `empresaId` y su `sucursalId`).
+    - `ROLE_VENTAS` tiene prohibida la creación o modificación de usuarios.
 
 ### Reglas de Acceso en Endpoints ([SecurityConfig.java](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/auth/security/SecurityConfig.java)):
 - `/api/v1/auth/**`: **Público**.

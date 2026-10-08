@@ -1,5 +1,6 @@
 package com.retail.cotizador.empresas.controller;
 
+import com.retail.cotizador.auth.security.UserPrincipal;
 import com.retail.cotizador.empresas.dto.EmpresaDto;
 import com.retail.cotizador.empresas.service.EmpresaService;
 import jakarta.validation.Valid;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +22,7 @@ public class EmpresaController {
     private final EmpresaService empresaService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EmpresaDto>> listar(@RequestParam(required = false, defaultValue = "false") boolean soloActivas) {
         if (soloActivas) {
             return ResponseEntity.ok(empresaService.listarActivas());
@@ -28,7 +31,14 @@ public class EmpresaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmpresaDto> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<EmpresaDto> obtenerPorId(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            if (!id.equals(userPrincipal.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         return ResponseEntity.ok(empresaService.obtenerPorId(id));
     }
 

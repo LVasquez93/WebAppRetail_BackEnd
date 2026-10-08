@@ -33,11 +33,20 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDto> obtenerPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.obtenerPorId(id));
+    public ResponseEntity<UsuarioDto> obtenerPorId(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        UsuarioDto usuario = usuarioService.obtenerPorId(id);
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            if (usuario.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(usuario.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+        return ResponseEntity.ok(usuario);
     }
 
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL') or hasRole('GERENTE_SUCURSAL') or hasRole('GERENTE')")
     public ResponseEntity<UsuarioDto> crear(
             @Valid @RequestBody UsuarioDto dto,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -57,11 +66,16 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL') or hasRole('GERENTE_SUCURSAL') or hasRole('GERENTE')")
     public ResponseEntity<UsuarioDto> actualizar(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioDto dto,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            UsuarioDto existente = usuarioService.obtenerPorId(id);
+            if (existente.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(existente.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
             dto.setEmpresaId(userPrincipal.getEmpresaId());
             if ("ROLE_GERENTE_SUCURSAL".equals(userPrincipal.getRol())) {
                 dto.setRol("ROLE_VENTAS");
@@ -76,12 +90,35 @@ public class UsuarioController {
     }
 
     @PostMapping("/lote")
-    public ResponseEntity<List<UsuarioDto>> crearLote(@RequestBody List<UsuarioDto> dtos) {
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL') or hasRole('GERENTE_SUCURSAL') or hasRole('GERENTE')")
+    public ResponseEntity<List<UsuarioDto>> crearLote(
+            @RequestBody List<UsuarioDto> dtos,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            for (UsuarioDto d : dtos) {
+                d.setEmpresaId(userPrincipal.getEmpresaId());
+                if ("ROLE_GERENTE_SUCURSAL".equals(userPrincipal.getRol())) {
+                    d.setRol("ROLE_VENTAS");
+                    d.setSucursalId(userPrincipal.getSucursalId());
+                } else if (d.getRol() == null || "ROLE_ADMIN".equalsIgnoreCase(d.getRol())) {
+                    d.setRol("ROLE_VENTAS");
+                }
+            }
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.crearLote(dtos));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL') or hasRole('GERENTE_SUCURSAL') or hasRole('GERENTE')")
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            UsuarioDto existente = usuarioService.obtenerPorId(id);
+            if (existente.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(existente.getEmpresaId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();
     }

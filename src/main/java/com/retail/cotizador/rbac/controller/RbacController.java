@@ -44,21 +44,44 @@ public class RbacController {
 
     @GetMapping("/usuarios/{id}/permisos")
     @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL') or hasRole('GERENTE_SUCURSAL') or hasRole('GERENTE')")
-    public ResponseEntity<UsuarioPermisosDto> obtenerPermisosUsuario(@PathVariable Long id) {
-        return ResponseEntity.ok(rbacService.obtenerPermisosUsuario(id));
+    public ResponseEntity<UsuarioPermisosDto> obtenerPermisosUsuario(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        UsuarioPermisosDto dto = rbacService.obtenerPermisosUsuario(id);
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            if (dto.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(dto.getEmpresaId())) {
+                return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+            }
+        }
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/usuarios/{id}/permisos")
     @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL') or hasRole('GERENTE_SUCURSAL') or hasRole('GERENTE')")
     public ResponseEntity<UsuarioPermisosDto> guardarPermisosUsuario(
             @PathVariable Long id,
-            @RequestBody List<String> permisos) {
+            @RequestBody List<String> permisos,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            UsuarioPermisosDto existente = rbacService.obtenerPermisosUsuario(id);
+            if (existente.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(existente.getEmpresaId())) {
+                return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+            }
+        }
         return ResponseEntity.ok(rbacService.guardarPermisosUsuario(id, permisos));
     }
 
     @PostMapping("/usuarios/{id}/permisos/reset")
     @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE_GENERAL') or hasRole('GERENTE_SUCURSAL') or hasRole('GERENTE')")
-    public ResponseEntity<UsuarioPermisosDto> restablecerPermisosUsuario(@PathVariable Long id) {
+    public ResponseEntity<UsuarioPermisosDto> restablecerPermisosUsuario(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
+            UsuarioPermisosDto existente = rbacService.obtenerPermisosUsuario(id);
+            if (existente.getEmpresaId() != null && !userPrincipal.getEmpresaId().equals(existente.getEmpresaId())) {
+                return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+            }
+        }
         return ResponseEntity.ok(rbacService.restablecerPermisosUsuario(id));
     }
 
