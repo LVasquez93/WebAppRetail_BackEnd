@@ -264,24 +264,24 @@
                     </td>
                     <td class="cell-entrega" th:text="${it.tiempoEntrega}">De 5 a 6 semanas</td>
                     <td class="cell-cantidad" th:text="${it.cantidad}">1</td>
-                    <td class="cell-precio" th:text="'$ ' + ${#numbers.formatDecimal(it.precioUnitario, 1, 'COMMA', 2, 'POINT')}">$ 42.00</td>
-                    <td class="cell-total" th:text="'$ ' + ${#numbers.formatDecimal(it.totalLinea, 1, 'COMMA', 2, 'POINT')}">$ 42.00</td>
+                    <td class="cell-precio" th:text="(${simboloMoneda ?: '$'}) + ' ' + ${#numbers.formatDecimal(it.precioUnitario, 1, 'COMMA', 2, 'POINT')}">$ 42.00</td>
+                    <td class="cell-total" th:text="(${simboloMoneda ?: '$'}) + ' ' + ${#numbers.formatDecimal(it.totalLinea, 1, 'COMMA', 2, 'POINT')}">$ 42.00</td>
                 </tr>
                 <!-- Filas de Resumen Financiero -->
                 <tr>
                     <td colspan="4" style="border: none; background-color: transparent;"></td>
                     <td class="total-label-cell">SUBTOTAL SIN IVA</td>
-                    <td class="total-value-cell" th:text="'$ ' + ${#numbers.formatDecimal(c.subtotalSinIva, 1, 'COMMA', 2, 'POINT')}">$ 177.06</td>
+                    <td class="total-value-cell" th:text="(${simboloMoneda ?: '$'}) + ' ' + ${#numbers.formatDecimal(c.subtotalSinIva, 1, 'COMMA', 2, 'POINT')}">$ 177.06</td>
                 </tr>
                 <tr>
                     <td colspan="4" style="border: none; background-color: transparent;"></td>
-                    <td class="total-label-cell">IVA</td>
-                    <td class="total-value-cell" th:text="'$ ' + ${#numbers.formatDecimal(c.montoIva, 1, 'COMMA', 2, 'POINT')}">$ 23.02</td>
+                    <td class="total-label-cell" th:text="'IVA (' + ${#numbers.formatDecimal(porcentajeIva ?: 13, 1, 'COMMA', 0, 'POINT')} + '%)'">IVA (13%)</td>
+                    <td class="total-value-cell" th:text="(${simboloMoneda ?: '$'}) + ' ' + ${#numbers.formatDecimal(c.montoIva, 1, 'COMMA', 2, 'POINT')}">$ 23.02</td>
                 </tr>
                 <tr>
                     <td colspan="4" style="border: none; background-color: transparent;"></td>
                     <td class="total-label-cell">TOTAL, INVERSION</td>
-                    <td class="total-value-cell" th:text="'$ ' + ${#numbers.formatDecimal(c.totalInversion, 1, 'COMMA', 2, 'POINT')}">$ 200.08</td>
+                    <td class="total-value-cell" th:text="(${simboloMoneda ?: '$'}) + ' ' + ${#numbers.formatDecimal(c.totalInversion, 1, 'COMMA', 2, 'POINT')}">$ 200.08</td>
                 </tr>
                 <tr>
                     <td colspan="6" class="letters-row" th:text="${c.totalEnLetras}">
@@ -295,6 +295,8 @@
         <div class="pdf-block">
             <div class="block-title">Condiciones comerciales:</div>
             <p><strong>Forma de pago:</strong> <span th:text="${c.formaPago}">Crédito 30 días, Transferencia Bancaria o Cheque</span></p>
+            <p th:if="${diasValidezCotizacion != null}"><strong>Validez de la oferta:</strong> <span th:text="${diasValidezCotizacion} + ' días calendario'">15 días calendario</span></p>
+            <p th:if="${garantiaPredeterminada != null and !garantiaPredeterminada.isBlank()}"><strong>Garantía:</strong> <span th:text="${garantiaPredeterminada}">1 año contra defectos de fábrica</span></p>
             <p><strong>Nota:</strong> ** IMPORTANTE ** <span th:text="${c.notaImportante ?: 'Tiempos de entrega y precios, podrían estar sujetos a cambios en inventario'}"></span></p>
         </div>
 

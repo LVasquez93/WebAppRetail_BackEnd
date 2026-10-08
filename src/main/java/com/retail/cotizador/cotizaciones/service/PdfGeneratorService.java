@@ -50,9 +50,31 @@ public class PdfGeneratorService {
                 .filter(s -> s != null && !s.isBlank())
                 .orElse("GERENTE GENERAL");
 
+        String simboloMoneda = sucursalOpt
+                .map(Sucursal::getMonedaSimbolo)
+                .filter(s -> s != null && !s.isBlank())
+                .orElse("$");
+
+        java.math.BigDecimal porcentajeIva = sucursalOpt
+                .map(Sucursal::getPorcentajeIva)
+                .orElse(new java.math.BigDecimal("13.00"));
+
+        Integer diasValidezCotizacion = sucursalOpt
+                .map(Sucursal::getDiasValidezCotizacion)
+                .orElse(15);
+
+        String garantiaPredeterminada = sucursalOpt
+                .map(Sucursal::getGarantiaPredeterminada)
+                .filter(g -> g != null && !g.isBlank())
+                .orElse("1 año contra defectos de fábrica");
+
         context.setVariable("signatureBase64", signatureBase64);
         context.setVariable("nombreFirmante", nombreFirmante);
         context.setVariable("cargoFirmante", cargoFirmante);
+        context.setVariable("simboloMoneda", simboloMoneda);
+        context.setVariable("porcentajeIva", porcentajeIva);
+        context.setVariable("diasValidezCotizacion", diasValidezCotizacion);
+        context.setVariable("garantiaPredeterminada", garantiaPredeterminada);
 
         String baseUri = getTemplatesBaseUri();
         String htmlContent = templateEngine.process("cotizacion-template", context);

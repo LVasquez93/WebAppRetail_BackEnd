@@ -104,6 +104,46 @@ public class DataInitializer implements CommandLineRunner {
 
             sucursalRepository.saveAll(List.of(sucursal1, sucursal2));
         }
+
+        // Asegurar configuración en sucursales existentes
+        sucursalRepository.findAll().forEach(suc -> {
+            boolean mod = false;
+            if (suc.getPorcentajeIva() == null) {
+                suc.setPorcentajeIva(new BigDecimal("13.00"));
+                mod = true;
+            }
+            if (suc.getMonedaCodigo() == null || suc.getMonedaCodigo().isBlank()) {
+                suc.setMonedaCodigo("USD");
+                mod = true;
+            }
+            if (suc.getMonedaSimbolo() == null || suc.getMonedaSimbolo().isBlank()) {
+                suc.setMonedaSimbolo("$");
+                mod = true;
+            }
+            if (suc.getMonedaNombre() == null || suc.getMonedaNombre().isBlank()) {
+                suc.setMonedaNombre("DOLARES");
+                mod = true;
+            }
+            if (suc.getDiasValidezCotizacion() == null) {
+                suc.setDiasValidezCotizacion(15);
+                mod = true;
+            }
+            if (suc.getTiempoEntregaPredeterminado() == null || suc.getTiempoEntregaPredeterminado().isBlank()) {
+                suc.setTiempoEntregaPredeterminado("De 5 a 6 semanas");
+                mod = true;
+            }
+            if (suc.getGarantiaPredeterminada() == null || suc.getGarantiaPredeterminada().isBlank()) {
+                suc.setGarantiaPredeterminada("1 año contra defectos de fábrica");
+                mod = true;
+            }
+            if (suc.getMostrarIvaDesglosado() == null) {
+                suc.setMostrarIvaDesglosado(true);
+                mod = true;
+            }
+            if (mod) {
+                sucursalRepository.save(suc);
+            }
+        });
     }
 
     private void inicializarUsuarios() {

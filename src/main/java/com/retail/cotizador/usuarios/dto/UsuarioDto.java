@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +27,8 @@ public class UsuarioDto {
     private String rol;
     private Long empresaId;
     private Long sucursalId;
+    private List<String> permisosPersonalizados;
+    private Boolean tienePermisosPersonalizados;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
 }

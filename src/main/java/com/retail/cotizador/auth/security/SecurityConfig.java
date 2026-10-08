@@ -94,8 +94,10 @@ public class SecurityConfig {
                         // Gestión de Empresas: solo ADMIN (SuperAdmin)
                         .requestMatchers("/api/v1/empresas/**").hasRole("ADMIN")
 
-                        // Módulo RBAC: lectura para cualquier autenticado, modificación y reset solo ADMIN
+                        // Módulo RBAC: lectura para cualquier autenticado, gestión de usuarios para admins/gerentes, matriz/reset solo ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/v1/rbac/**").authenticated()
+                        .requestMatchers("/api/v1/rbac/matriz", "/api/v1/rbac/reset").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/rbac/usuarios/**").hasAnyRole("ADMIN", "GERENTE_GENERAL", "GERENTE_SUCURSAL", "GERENTE")
                         .requestMatchers("/api/v1/rbac/**").hasRole("ADMIN")
 
                         // Gestión de Usuarios: solo ADMIN, GERENTE_GENERAL, GERENTE_SUCURSAL y GERENTE

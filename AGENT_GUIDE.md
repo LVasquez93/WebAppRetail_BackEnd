@@ -140,6 +140,14 @@ erDiagram
         Text firmaBase64
         String nombreFirmante
         String cargoFirmante
+        BigDecimal porcentajeIva
+        String monedaCodigo
+        String monedaSimbolo
+        String monedaNombre
+        Integer diasValidezCotizacion
+        String tiempoEntregaPredeterminado
+        String garantiaPredeterminada
+        Boolean mostrarIvaDesglosado
         Boolean activo
     }
 
@@ -225,13 +233,22 @@ El sistema implementa una jerarquía en cascada donde cada rol superior hereda a
 
 *Compatibilidad hacia atrás*: Usuarios legados con `ROLE_GERENTE` mapean automáticamente a `ROLE_GERENTE_SUCURSAL` (si tienen `sucursalId`) o `ROLE_GERENTE_GENERAL` (si `sucursalId` es nulo). En `UserPrincipal`, los roles superiores declaran GrantedAuthorities adicionales en cascada.
 
-### Módulo Dinámico e Interactivo de RBAC:
+### Módulo Dinámico e Interactivo de RBAC (Roles y Permisos Granulares por Usuario):
 - **Entidad `RolPermisoConfig`**: Persiste en base de datos la matriz de permisos por rol en formato JSON (`rbac_rol_permisos`).
+- **Entidad `Usuario` (`permisos_personalizados_json`)**: Permite sobrescribir o ampliar los permisos de cualquier colaborador individual de manera granular (ej. supervisor de ventas con permisos de carga masiva de clientes/productos o creación de usuarios ventas).
 - **Catálogo de Permisos**: Categorizado en Empresas, Sucursales, Usuarios, Catálogos, Cotizaciones y Seguridad & RBAC.
+- **Resolución de Permisos Efectivos**:
+  1. `ROLE_ADMIN`: Acceso root completo a todos los permisos.
+  2. Si `usuario.permisosPersonalizados` está configurado en BD: Se aplican exactamente los permisos seleccionados para ese usuario (permitiendo tanto otorgar capacidades especiales como revocar permisos específicos del rol).
+  3. Si es `null`: Hereda la lista de permisos predeterminada del rol base (`ROLE_VENTAS`, `ROLE_GERENTE_SUCURSAL`, `ROLE_GERENTE_GENERAL`).
 - **Endpoints RBAC ([RbacController.java](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/rbac/controller/RbacController.java))**:
   - `GET /api/v1/rbac/matriz`: Consulta matriz completa con definiciones y roles.
   - `PUT /api/v1/rbac/matriz`: Actualiza asignación de permisos por rol (solo `ROLE_ADMIN`).
   - `POST /api/v1/rbac/reset`: Restablece configuración a los presets recomendados por defecto (solo `ROLE_ADMIN`).
+  - `GET /api/v1/rbac/catalogo`: Devuelve la lista de definiciones del catálogo de capacidades disponibles.
+  - `GET /api/v1/rbac/usuarios/{id}/permisos`: Devuelve los permisos efectivos, predeterminados del rol y especiales del usuario.
+  - `PUT /api/v1/rbac/usuarios/{id}/permisos`: Guarda permisos especiales personalizados para un usuario específico.
+  - `POST /api/v1/rbac/usuarios/{id}/permisos/reset`: Elimina permisos personalizados y restablece el usuario a su rol base.
   - `GET /api/v1/rbac/mis-permisos`: Devuelve los códigos de permisos efectivos asignados al usuario en sesión.
 
 ### Aislamiento Multi-Tenant en Backend:
@@ -263,13 +280,17 @@ El sistema implementa una jerarquía en cascada donde cada rol superior hereda a
 
 ## 6. Reglas de Negocio Críticas
 
-### 1. Cálculos Financieros
+### 1. Cálculos Financieros y Configuración Fiscal Multi-Moneda
 - **Total por Línea**: `totalLinea = ROUND(cantidad * precioUnitario, 2)`.
 - **Subtotal**: `subtotalSinIva = ROUND(SUM(totalLinea), 2)`.
-- **Impuesto IVA**: `montoIva = ROUND(subtotalSinIva * 0.13, 2)` (13.00% tasa legal El Salvador).
+- **Impuesto IVA Dinámico**: Calculado en base a `sucursal.porcentajeIva`:
+  - `tasa = sucursal.porcentajeIva / 100` (por defecto 13.00% en El Salvador; configurable para 12% Guatemala, 15% Honduras/Nicaragua, o 0% Exento).
+  - `montoIva = ROUND(subtotalSinIva * tasa, 2)`.
 - **Total Inversión**: `totalInversion = ROUND(subtotalSinIva + montoIva, 2)`.
-- **Monto en Letras**: Convertido a mayúsculas con formato legal salvadoreño:  
-  `DOSCIENTOS DOLARES CON 08/100` mediante [NumeroALetrasUtil.java](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/common/util/NumeroALetrasUtil.java).
+- **Símbolo de Moneda**: Resuelto dinámicamente según `sucursal.monedaSimbolo` (ej. `$`, `Q`, `L`, `C$`, `€`).
+- **Monto en Letras**: Convertido a mayúsculas utilizando el nombre de moneda configurado en la sucursal (`sucursal.monedaNombre`):  
+  - Ejemplo: `DOSCIENTOS DOLARES CON 08/100` o `DOSCIENTOS QUETZALES CON 08/100` mediante [NumeroALetrasUtil.java](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/common/util/NumeroALetrasUtil.java).
+- **Términos Comerciales Predeterminados**: Validez de oferta (`sucursal.diasValidezCotizacion`, default 15 días), tiempo de entrega (`tiempoEntregaPredeterminado`) y cláusula de garantía (`garantiaPredeterminada`) se inyectan dinámicamente en el documento final.
 
 ### 2. Generación del Código Correlativo
 El código de cotización es autogenerado secuencialmente en base a la fecha de emisión:
@@ -277,7 +298,7 @@ El código de cotización es autogenerado secuencialmente en base a la fecha de 
 - Conteo atómico en base de datos mediante `countByCodigoCotizacionStartingWith(prefix)`.
 
 ### 3. Pipeline de Generación de PDF ([PdfGeneratorService.java](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/cotizaciones/service/PdfGeneratorService.java))
-1. **Fase 1 (Compilación HTML)**: Thymeleaf procesa `cotizacion-template.html` inyectando variables de cliente, ítems, totales y colores corporativos. OpenHTMLtoPDF genera el PDF crudo con márgenes superior (130px) e inferior (120px) reservados.
+1. **Fase 1 (Compilación HTML)**: Thymeleaf procesa `cotizacion-template.html` inyectando variables de cliente, ítems, totales, colores corporativos, símbolo de moneda, tasa de IVA, días de validez y condiciones de garantía de la sucursal. OpenHTMLtoPDF genera el PDF crudo con márgenes superior (130px) e inferior (120px) reservados.
 2. **Fase 2 (Estampado PDFBox)**:
    - En **todas las páginas**: Estampa el cintillo de encabezado arriba a sangre (full-width) y el cintillo de pie abajo a sangre.
    - En la **última página**: Estampa la firma digitalizada sobre el bloque del firmante.
@@ -309,4 +330,4 @@ Para añadir un nuevo módulo sin romper la arquitectura existente:
 1. **Crear nuevo paquete**: `com.retail.cotizador.{nuevo_modulo}`.
 2. **Reutilizar Entidades Maestras**: Relacionar las nuevas entidades con `Sucursal` (`sucursal_id`) y `Cliente` o `Equipo` de `catalogos`.
 3. **Seguridad**: Si se necesitan nuevos roles (ej. `ROLE_CONTADOR` o `ROLE_BODEGUERO`), agregarlos en `SecurityConfig.java` y en los `requestMatchers`.
-4. **Verificación**: Siempre ejecutar `mvn test` antes de hacer commit. Todas las 10 pruebas actuales deben mantenerse en verde.
+4. **Verificación**: Siempre ejecutar `mvn test` antes de hacer commit. Todas las 15 pruebas actuales deben mantenerse en verde.

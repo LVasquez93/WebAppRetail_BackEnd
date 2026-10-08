@@ -65,6 +65,14 @@ public class SucursalService {
                 .cargoFirmante(dto.getCargoFirmante() != null ? dto.getCargoFirmante() : "GERENTE GENERAL")
                 .formaPagoPredeterminada(dto.getFormaPagoPredeterminada())
                 .notaPredeterminada(dto.getNotaPredeterminada())
+                .porcentajeIva(dto.getPorcentajeIva() != null ? dto.getPorcentajeIva() : new java.math.BigDecimal("13.00"))
+                .monedaCodigo(dto.getMonedaCodigo() != null && !dto.getMonedaCodigo().isBlank() ? dto.getMonedaCodigo().trim().toUpperCase() : "USD")
+                .monedaSimbolo(dto.getMonedaSimbolo() != null && !dto.getMonedaSimbolo().isBlank() ? dto.getMonedaSimbolo().trim() : "$")
+                .monedaNombre(dto.getMonedaNombre() != null && !dto.getMonedaNombre().isBlank() ? dto.getMonedaNombre().trim().toUpperCase() : "DOLARES")
+                .diasValidezCotizacion(dto.getDiasValidezCotizacion() != null ? dto.getDiasValidezCotizacion() : 15)
+                .tiempoEntregaPredeterminado(dto.getTiempoEntregaPredeterminado() != null && !dto.getTiempoEntregaPredeterminado().isBlank() ? dto.getTiempoEntregaPredeterminado().trim() : "De 5 a 6 semanas")
+                .garantiaPredeterminada(dto.getGarantiaPredeterminada() != null && !dto.getGarantiaPredeterminada().isBlank() ? dto.getGarantiaPredeterminada().trim() : "1 año contra defectos de fábrica")
+                .mostrarIvaDesglosado(dto.getMostrarIvaDesglosado() != null ? dto.getMostrarIvaDesglosado() : true)
                 .activo(dto.getActivo() != null ? dto.getActivo() : true)
                 .build();
 
@@ -113,6 +121,30 @@ public class SucursalService {
         if (dto.getNotaPredeterminada() != null) {
             sucursal.setNotaPredeterminada(dto.getNotaPredeterminada());
         }
+        if (dto.getPorcentajeIva() != null) {
+            sucursal.setPorcentajeIva(dto.getPorcentajeIva());
+        }
+        if (dto.getMonedaCodigo() != null && !dto.getMonedaCodigo().isBlank()) {
+            sucursal.setMonedaCodigo(dto.getMonedaCodigo().trim().toUpperCase());
+        }
+        if (dto.getMonedaSimbolo() != null && !dto.getMonedaSimbolo().isBlank()) {
+            sucursal.setMonedaSimbolo(dto.getMonedaSimbolo().trim());
+        }
+        if (dto.getMonedaNombre() != null && !dto.getMonedaNombre().isBlank()) {
+            sucursal.setMonedaNombre(dto.getMonedaNombre().trim().toUpperCase());
+        }
+        if (dto.getDiasValidezCotizacion() != null) {
+            sucursal.setDiasValidezCotizacion(dto.getDiasValidezCotizacion());
+        }
+        if (dto.getTiempoEntregaPredeterminado() != null) {
+            sucursal.setTiempoEntregaPredeterminado(dto.getTiempoEntregaPredeterminado());
+        }
+        if (dto.getGarantiaPredeterminada() != null) {
+            sucursal.setGarantiaPredeterminada(dto.getGarantiaPredeterminada());
+        }
+        if (dto.getMostrarIvaDesglosado() != null) {
+            sucursal.setMostrarIvaDesglosado(dto.getMostrarIvaDesglosado());
+        }
         if (dto.getEmpresaId() != null) {
             sucursal.setEmpresaId(dto.getEmpresaId());
         }
@@ -150,6 +182,14 @@ public class SucursalService {
                 .cargoFirmante(s.getCargoFirmante())
                 .formaPagoPredeterminada(s.getFormaPagoPredeterminada())
                 .notaPredeterminada(s.getNotaPredeterminada())
+                .porcentajeIva(s.getPorcentajeIva())
+                .monedaCodigo(s.getMonedaCodigo())
+                .monedaSimbolo(s.getMonedaSimbolo())
+                .monedaNombre(s.getMonedaNombre())
+                .diasValidezCotizacion(s.getDiasValidezCotizacion())
+                .tiempoEntregaPredeterminado(s.getTiempoEntregaPredeterminado())
+                .garantiaPredeterminada(s.getGarantiaPredeterminada())
+                .mostrarIvaDesglosado(s.getMostrarIvaDesglosado())
                 .activo(s.getActivo())
                 .build();
     }

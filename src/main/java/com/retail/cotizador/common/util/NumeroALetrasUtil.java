@@ -24,7 +24,12 @@ public class NumeroALetrasUtil {
     };
 
     public static String convertir(BigDecimal cantidad) {
-        if (cantidad == null) return "CERO DOLARES CON 00/100";
+        return convertir(cantidad, "DOLARES");
+    }
+
+    public static String convertir(BigDecimal cantidad, String nombreMoneda) {
+        String moneda = (nombreMoneda != null && !nombreMoneda.isBlank()) ? nombreMoneda.trim().toUpperCase() : "DOLARES";
+        if (cantidad == null) return "CERO " + moneda + " CON 00/100";
         BigDecimal cantidadPositiva = cantidad.setScale(2, RoundingMode.HALF_UP).abs();
         long parteEntera = cantidadPositiva.longValue();
         int centavos = cantidadPositiva.remainder(BigDecimal.ONE)
@@ -34,7 +39,7 @@ public class NumeroALetrasUtil {
         if (parteEntera == 0) letrasParteEntera = "CERO ";
         if (parteEntera == 100) letrasParteEntera = "CIEN ";
 
-        return (letrasParteEntera.trim() + " DOLARES CON " +
+        return (letrasParteEntera.trim() + " " + moneda + " CON " +
             String.format("%02d", centavos) + "/100").toUpperCase();
     }
 

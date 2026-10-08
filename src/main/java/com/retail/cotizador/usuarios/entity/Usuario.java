@@ -40,6 +40,9 @@ public class Usuario {
     @Column(name = "sucursal_id")
     private Long sucursalId;
 
+    @Column(name = "permisos_personalizados_json", columnDefinition = "TEXT")
+    private String permisosPersonalizadosJson;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean activo = true;

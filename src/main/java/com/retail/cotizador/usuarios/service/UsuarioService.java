@@ -150,6 +150,9 @@ public class UsuarioService {
     }
 
     private UsuarioDto mapToDto(Usuario entity) {
+        boolean tienePersonalizados = entity.getPermisosPersonalizadosJson() != null &&
+                !entity.getPermisosPersonalizadosJson().trim().isEmpty();
+
         return UsuarioDto.builder()
                 .id(entity.getId())
                 .username(entity.getUsername())
@@ -159,6 +162,7 @@ public class UsuarioService {
                 .rol(entity.getRol())
                 .empresaId(entity.getEmpresaId())
                 .sucursalId(entity.getSucursalId())
+                .tienePermisosPersonalizados(tienePersonalizados)
                 .activo(entity.getActivo())
                 .fechaCreacion(entity.getFechaCreacion())
                 .build();

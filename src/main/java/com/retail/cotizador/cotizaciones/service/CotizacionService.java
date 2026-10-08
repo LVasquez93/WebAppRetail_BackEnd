@@ -45,18 +45,25 @@ public class CotizacionService {
         }
         cotizacion.setEmpresaId(empresaId);
 
-        // Identificar prefijo según sucursal
+        // Identificar prefijo y moneda según sucursal
         String prefijo = "COT";
+        String monedaNombre = "DOLARES";
         if (cotizacion.getSucursalId() != null) {
-            prefijo = sucursalRepository.findById(cotizacion.getSucursalId())
-                    .map(Sucursal::getPrefijoCotizacion)
-                    .orElse("COT");
+            Sucursal sucursal = sucursalRepository.findById(cotizacion.getSucursalId()).orElse(null);
+            if (sucursal != null) {
+                if (sucursal.getPrefijoCotizacion() != null && !sucursal.getPrefijoCotizacion().isBlank()) {
+                    prefijo = sucursal.getPrefijoCotizacion();
+                }
+                if (sucursal.getMonedaNombre() != null && !sucursal.getMonedaNombre().isBlank()) {
+                    monedaNombre = sucursal.getMonedaNombre();
+                }
+            }
         }
 
         // Siempre generamos el código oficial correlativo con formato: Prefijo + AAAA + MM + 3 dígitos
         cotizacion.setCodigoCotizacion(generarCodigoCotizacion(cotizacion.getFechaEmision(), prefijo));
         
-        cotizacion.setTotalEnLetras(NumeroALetrasUtil.convertir(cotizacion.getTotalInversion()));
+        cotizacion.setTotalEnLetras(NumeroALetrasUtil.convertir(cotizacion.getTotalInversion(), monedaNombre));
 
         Cotizacion savedCotizacion = cotizacionRepository.save(cotizacion);
         return mapearADto(savedCotizacion);
@@ -100,10 +107,17 @@ public class CotizacionService {
         }
 
         String prefijo = "COT";
+        String monedaNombre = "DOLARES";
         if (sucursalId != null) {
-            prefijo = sucursalRepository.findById(sucursalId)
-                    .map(Sucursal::getPrefijoCotizacion)
-                    .orElse("COT");
+            Sucursal sucursal = sucursalRepository.findById(sucursalId).orElse(null);
+            if (sucursal != null) {
+                if (sucursal.getPrefijoCotizacion() != null && !sucursal.getPrefijoCotizacion().isBlank()) {
+                    prefijo = sucursal.getPrefijoCotizacion();
+                }
+                if (sucursal.getMonedaNombre() != null && !sucursal.getMonedaNombre().isBlank()) {
+                    monedaNombre = sucursal.getMonedaNombre();
+                }
+            }
         }
 
         String codigo = dto.getCodigoCotizacion();
@@ -138,7 +152,7 @@ public class CotizacionService {
                 .subtotalSinIva(subtotal)
                 .montoIva(iva)
                 .totalInversion(total)
-                .totalEnLetras(NumeroALetrasUtil.convertir(total))
+                .totalEnLetras(NumeroALetrasUtil.convertir(total, monedaNombre))
                 .build();
 
         if (dto.getItems() != null && !dto.getItems().isEmpty()) {

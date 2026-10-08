@@ -2,6 +2,7 @@ package com.retail.cotizador.sucursales.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -69,6 +70,38 @@ public class Sucursal {
     @Column(columnDefinition = "TEXT")
     private String notaPredeterminada;
 
+    @Column(name = "porcentaje_iva", precision = 5, scale = 2)
+    @Builder.Default
+    private BigDecimal porcentajeIva = new BigDecimal("13.00");
+
+    @Column(name = "moneda_codigo", length = 10)
+    @Builder.Default
+    private String monedaCodigo = "USD";
+
+    @Column(name = "moneda_simbolo", length = 10)
+    @Builder.Default
+    private String monedaSimbolo = "$";
+
+    @Column(name = "moneda_nombre", length = 50)
+    @Builder.Default
+    private String monedaNombre = "DOLARES";
+
+    @Column(name = "dias_validez_cotizacion")
+    @Builder.Default
+    private Integer diasValidezCotizacion = 15;
+
+    @Column(name = "tiempo_entrega_predeterminado", length = 100)
+    @Builder.Default
+    private String tiempoEntregaPredeterminado = "De 5 a 6 semanas";
+
+    @Column(name = "garantia_predeterminada", length = 200)
+    @Builder.Default
+    private String garantiaPredeterminada = "1 año contra defectos de fábrica";
+
+    @Column(name = "mostrar_iva_desglosado")
+    @Builder.Default
+    private Boolean mostrarIvaDesglosado = true;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean activo = true;
@@ -86,6 +119,30 @@ public class Sucursal {
         }
         if (this.prefijoCotizacion == null || this.prefijoCotizacion.isBlank()) {
             this.prefijoCotizacion = "COT";
+        }
+        if (this.porcentajeIva == null) {
+            this.porcentajeIva = new BigDecimal("13.00");
+        }
+        if (this.monedaCodigo == null || this.monedaCodigo.isBlank()) {
+            this.monedaCodigo = "USD";
+        }
+        if (this.monedaSimbolo == null || this.monedaSimbolo.isBlank()) {
+            this.monedaSimbolo = "$";
+        }
+        if (this.monedaNombre == null || this.monedaNombre.isBlank()) {
+            this.monedaNombre = "DOLARES";
+        }
+        if (this.diasValidezCotizacion == null) {
+            this.diasValidezCotizacion = 15;
+        }
+        if (this.tiempoEntregaPredeterminado == null || this.tiempoEntregaPredeterminado.isBlank()) {
+            this.tiempoEntregaPredeterminado = "De 5 a 6 semanas";
+        }
+        if (this.garantiaPredeterminada == null || this.garantiaPredeterminada.isBlank()) {
+            this.garantiaPredeterminada = "1 año contra defectos de fábrica";
+        }
+        if (this.mostrarIvaDesglosado == null) {
+            this.mostrarIvaDesglosado = true;
         }
     }
 }

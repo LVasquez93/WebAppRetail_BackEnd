@@ -20,6 +20,7 @@ import java.util.*;
 public class RbacService {
 
     private final RolPermisoConfigRepository rolPermisoConfigRepository;
+    private final com.retail.cotizador.usuarios.repository.UsuarioRepository usuarioRepository;
     private final ObjectMapper objectMapper;
 
     // Catálogo estático de permisos disponibles en el sistema
@@ -225,6 +226,105 @@ public class RbacService {
         }
 
         return new ArrayList<>(permisosAcumulados);
+    }
+
+    public List<PermisoDefinicionDto> obtenerCatalogoPermisos() {
+        return CATALOGO_PERMISOS;
+    }
+
+    @Transactional(readOnly = true)
+    public com.retail.cotizador.rbac.dto.UsuarioPermisosDto obtenerPermisosUsuario(Long usuarioId) {
+        com.retail.cotizador.usuarios.entity.Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new com.retail.cotizador.common.exception.ResourceNotFoundException("Usuario", "id", usuarioId));
+
+        List<String> permisosRolDefecto = obtenerPermisosEfectivosUsuario(usuario.getRol());
+
+        List<String> permisosEspeciales = null;
+        boolean tienePersonalizados = false;
+
+        if (usuario.getPermisosPersonalizadosJson() != null && !usuario.getPermisosPersonalizadosJson().trim().isEmpty()) {
+            try {
+                permisosEspeciales = objectMapper.readValue(usuario.getPermisosPersonalizadosJson(), new TypeReference<List<String>>() {});
+                tienePersonalizados = true;
+            } catch (Exception e) {
+                log.warn("Error al deserializar permisos personalizados de usuario {}: {}", usuario.getUsername(), e.getMessage());
+            }
+        }
+
+        List<String> permisosEfectivos;
+        if ("ROLE_ADMIN".equals(usuario.getRol())) {
+            permisosEfectivos = CATALOGO_PERMISOS.stream().map(PermisoDefinicionDto::getCodigo).toList();
+        } else if (tienePersonalizados && permisosEspeciales != null) {
+            permisosEfectivos = permisosEspeciales;
+        } else {
+            permisosEfectivos = permisosRolDefecto;
+        }
+
+        return com.retail.cotizador.rbac.dto.UsuarioPermisosDto.builder()
+                .usuarioId(usuario.getId())
+                .username(usuario.getUsername())
+                .nombreCompleto(usuario.getNombreCompleto())
+                .cargo(usuario.getCargo())
+                .rol(usuario.getRol())
+                .empresaId(usuario.getEmpresaId())
+                .sucursalId(usuario.getSucursalId())
+                .permisosRolPorDefecto(permisosRolDefecto)
+                .permisosEfectivos(permisosEfectivos)
+                .permisosEspecialesAsignados(permisosEspeciales != null ? permisosEspeciales : List.of())
+                .tienePermisosPersonalizados(tienePersonalizados)
+                .build();
+    }
+
+    @Transactional
+    public com.retail.cotizador.rbac.dto.UsuarioPermisosDto guardarPermisosUsuario(Long usuarioId, List<String> permisos) {
+        com.retail.cotizador.usuarios.entity.Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new com.retail.cotizador.common.exception.ResourceNotFoundException("Usuario", "id", usuarioId));
+
+        try {
+            String json = objectMapper.writeValueAsString(permisos != null ? permisos : List.of());
+            usuario.setPermisosPersonalizadosJson(json);
+            usuarioRepository.save(usuario);
+        } catch (Exception e) {
+            log.error("Error al guardar permisos personalizados para usuario {}", usuario.getUsername(), e);
+            throw new RuntimeException("Error al serializar permisos del usuario: " + e.getMessage());
+        }
+
+        return obtenerPermisosUsuario(usuarioId);
+    }
+
+    @Transactional
+    public com.retail.cotizador.rbac.dto.UsuarioPermisosDto restablecerPermisosUsuario(Long usuarioId) {
+        com.retail.cotizador.usuarios.entity.Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new com.retail.cotizador.common.exception.ResourceNotFoundException("Usuario", "id", usuarioId));
+
+        usuario.setPermisosPersonalizadosJson(null);
+        usuarioRepository.save(usuario);
+
+        return obtenerPermisosUsuario(usuarioId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> obtenerPermisosEfectivosUsuarioAutenticado(com.retail.cotizador.auth.security.UserPrincipal principal) {
+        if (principal == null) return Collections.emptyList();
+        if ("ROLE_ADMIN".equals(principal.getRol())) {
+            return CATALOGO_PERMISOS.stream().map(PermisoDefinicionDto::getCodigo).toList();
+        }
+
+        if (principal.getId() != null) {
+            Optional<com.retail.cotizador.usuarios.entity.Usuario> usuarioOpt = usuarioRepository.findById(principal.getId());
+            if (usuarioOpt.isPresent()) {
+                com.retail.cotizador.usuarios.entity.Usuario usuario = usuarioOpt.get();
+                if (usuario.getPermisosPersonalizadosJson() != null && !usuario.getPermisosPersonalizadosJson().trim().isEmpty()) {
+                    try {
+                        return objectMapper.readValue(usuario.getPermisosPersonalizadosJson(), new TypeReference<List<String>>() {});
+                    } catch (Exception e) {
+                        log.warn("Error al deserializar permisos personalizados de {}: {}", usuario.getUsername(), e.getMessage());
+                    }
+                }
+            }
+        }
+
+        return obtenerPermisosEfectivosUsuario(principal.getRol());
     }
 
     public List<String> obtenerPermisosDirectos(String rol) {

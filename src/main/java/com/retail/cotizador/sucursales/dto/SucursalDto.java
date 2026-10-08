@@ -2,6 +2,7 @@ package com.retail.cotizador.sucursales.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -32,5 +33,16 @@ public class SucursalDto {
     private String cargoFirmante;
     private String formaPagoPredeterminada;
     private String notaPredeterminada;
+
+    // Opciones de configuración comercial y fiscal
+    private BigDecimal porcentajeIva;
+    private String monedaCodigo;
+    private String monedaSimbolo;
+    private String monedaNombre;
+    private Integer diasValidezCotizacion;
+    private String tiempoEntregaPredeterminado;
+    private String garantiaPredeterminada;
+    private Boolean mostrarIvaDesglosado;
+
     private Boolean activo;
 }
