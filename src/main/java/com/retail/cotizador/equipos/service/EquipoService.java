@@ -7,6 +7,8 @@ import com.retail.cotizador.equipos.repository.EquipoRepository;
 import com.retail.cotizador.sucursales.entity.Sucursal;
 import com.retail.cotizador.sucursales.repository.SucursalRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,17 @@ public class EquipoService {
             list = equipoRepository.listarPorEmpresaYSucursal(empresaId, sucursalId);
         }
         return list.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<EquipoDto> listarOBuscarPaginado(String query, Long empresaId, Long sucursalId, Pageable pageable) {
+        Page<Equipo> page;
+        if (query != null && !query.trim().isEmpty()) {
+            page = equipoRepository.buscarEquipos(query.trim(), empresaId, sucursalId, pageable);
+        } else {
+            page = equipoRepository.listarPorEmpresaYSucursal(empresaId, sucursalId, pageable);
+        }
+        return page.map(this::mapToDto);
     }
 
     @Transactional(readOnly = true)

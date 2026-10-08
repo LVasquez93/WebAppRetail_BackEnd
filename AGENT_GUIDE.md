@@ -330,6 +330,14 @@ El archivo [`application.yml`](file:///c:/Users/luizi/OneDrive/Escritorio/WebApp
 | `HIKARI_MAX_POOL_SIZE` | `5` | `5` (óptimo para Aiven Free Tier) |
 | `HIBERNATE_DDL_AUTO` | `update` | `update` |
 
+### 4. Paginación y Rendimiento en Catálogos
+Para evitar la saturación de memoria tanto en base de datos como en clientes web y móviles, las APIs maestras de catálogos implementan paginación estándar con Spring Data JPA y DTO envolvente:
+- **Endpoints**: `GET /api/v1/clientes`, `GET /api/v1/equipos`, `GET /api/v1/usuarios`.
+- **Parámetros**: `page` (0-indexed, default 0), `size` (default 15), `sort` opcional.
+- **Respuesta Envolvente**: [`PageResponseDto<T>`](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/common/dto/PageResponseDto.java) conteniendo:
+  `{ content: T[], pageNumber: int, pageSize: int, totalElements: long, totalPages: int, first: boolean, last: boolean }`.
+- **Compatibilidad**: Los servicios conservan métodos `listarOBuscar(...)` para llamadas directas internas y pruebas unitarias, junto a `listarOBuscarPaginado(...)`.
+
 ---
 
 ## 8. Guía para Nuevos Módulos (Ej. Facturación / Inventario)
@@ -339,3 +347,4 @@ Para añadir un nuevo módulo sin romper la arquitectura existente:
 2. **Reutilizar Entidades Maestras**: Relacionar las nuevas entidades con `Sucursal` (`sucursal_id`) y `Cliente` o `Equipo` de `catalogos`.
 3. **Seguridad**: Si se necesitan nuevos roles (ej. `ROLE_CONTADOR` o `ROLE_BODEGUERO`), agregarlos en `SecurityConfig.java` y en los `requestMatchers`.
 4. **Verificación**: Siempre ejecutar `mvn test` antes de hacer commit. Todas las 15 pruebas actuales deben mantenerse en verde.
+

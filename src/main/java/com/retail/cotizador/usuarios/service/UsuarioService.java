@@ -5,6 +5,8 @@ import com.retail.cotizador.usuarios.dto.UsuarioDto;
 import com.retail.cotizador.usuarios.entity.Usuario;
 import com.retail.cotizador.usuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +60,16 @@ public class UsuarioService {
             list = usuarioRepository.findByActivoTrueOrderByNombreCompletoAsc();
         }
         return list.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UsuarioDto> listarOBuscarPaginado(String query, Long empresaId, Boolean soloAdmins, Pageable pageable) {
+        String q = (query != null && !query.trim().isEmpty()) ? query.trim() : null;
+        String rol = Boolean.TRUE.equals(soloAdmins) ? "ROLE_ADMIN" : null;
+        Long empId = Boolean.TRUE.equals(soloAdmins) ? null : empresaId;
+
+        Page<Usuario> page = usuarioRepository.buscarUsuariosFiltrados(q, empId, rol, pageable);
+        return page.map(this::mapToDto);
     }
 
     @Transactional(readOnly = true)

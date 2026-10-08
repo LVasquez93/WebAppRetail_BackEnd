@@ -97,7 +97,7 @@ public class RbacIntegrationTest {
                 .andReturn();
 
         String usersJson = resUsers.getResponse().getContentAsString();
-        long usuarioId = objectMapper.readTree(usersJson).get(0).get("id").asLong();
+        long usuarioId = objectMapper.readTree(usersJson).get("content").get(0).get("id").asLong();
 
         // 2. Obtener permisos del usuario
         mockMvc.perform(get("/api/v1/rbac/usuarios/" + usuarioId + "/permisos")

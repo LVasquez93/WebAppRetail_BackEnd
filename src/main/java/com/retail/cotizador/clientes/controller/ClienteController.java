@@ -3,8 +3,12 @@ package com.retail.cotizador.clientes.controller;
 import com.retail.cotizador.auth.security.UserPrincipal;
 import com.retail.cotizador.clientes.dto.ClienteDto;
 import com.retail.cotizador.clientes.service.ClienteService;
+import com.retail.cotizador.common.dto.PageResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,18 +24,20 @@ public class ClienteController {
     private final ClienteService clienteService;
 
     @GetMapping
-    public ResponseEntity<List<ClienteDto>> listarOBuscar(
+    public ResponseEntity<PageResponseDto<ClienteDto>> listarOBuscar(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Long empresaId,
             @RequestParam(required = false) Long sucursalId,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PageableDefault(page = 0, size = 15) Pageable pageable) {
 
         // Segregación multi-tenant: Si no es ADMIN del SaaS, restringir estrictamente a su empresa
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
             empresaId = userPrincipal.getEmpresaId();
         }
 
-        return ResponseEntity.ok(clienteService.listarOBuscar(q, empresaId, sucursalId));
+        Page<ClienteDto> page = clienteService.listarOBuscarPaginado(q, empresaId, sucursalId, pageable);
+        return ResponseEntity.ok(PageResponseDto.from(page));
     }
 
     @GetMapping("/{id}")

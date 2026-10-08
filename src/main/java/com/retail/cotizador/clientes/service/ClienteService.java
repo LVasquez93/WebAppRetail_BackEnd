@@ -7,6 +7,8 @@ import com.retail.cotizador.common.exception.ResourceNotFoundException;
 import com.retail.cotizador.sucursales.entity.Sucursal;
 import com.retail.cotizador.sucursales.repository.SucursalRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,17 @@ public class ClienteService {
             list = clienteRepository.listarPorEmpresaYSucursal(empresaId, sucursalId);
         }
         return list.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ClienteDto> listarOBuscarPaginado(String query, Long empresaId, Long sucursalId, Pageable pageable) {
+        Page<Cliente> page;
+        if (query != null && !query.trim().isEmpty()) {
+            page = clienteRepository.buscarClientes(query.trim(), empresaId, sucursalId, pageable);
+        } else {
+            page = clienteRepository.listarPorEmpresaYSucursal(empresaId, sucursalId, pageable);
+        }
+        return page.map(this::mapToDto);
     }
 
     @Transactional(readOnly = true)

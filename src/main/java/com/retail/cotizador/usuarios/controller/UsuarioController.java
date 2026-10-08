@@ -1,10 +1,14 @@
 package com.retail.cotizador.usuarios.controller;
 
 import com.retail.cotizador.auth.security.UserPrincipal;
+import com.retail.cotizador.common.dto.PageResponseDto;
 import com.retail.cotizador.usuarios.dto.UsuarioDto;
 import com.retail.cotizador.usuarios.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,16 +24,18 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @GetMapping
-    public ResponseEntity<List<UsuarioDto>> listarOBuscar(
+    public ResponseEntity<PageResponseDto<UsuarioDto>> listarOBuscar(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Long empresaId,
             @RequestParam(required = false) Boolean soloAdmins,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PageableDefault(page = 0, size = 15) Pageable pageable) {
         if (userPrincipal != null && !"ROLE_ADMIN".equals(userPrincipal.getRol())) {
             empresaId = userPrincipal.getEmpresaId();
             soloAdmins = false;
         }
-        return ResponseEntity.ok(usuarioService.listarOBuscar(q, empresaId, soloAdmins));
+        Page<UsuarioDto> page = usuarioService.listarOBuscarPaginado(q, empresaId, soloAdmins, pageable);
+        return ResponseEntity.ok(PageResponseDto.from(page));
     }
 
     @GetMapping("/{id}")

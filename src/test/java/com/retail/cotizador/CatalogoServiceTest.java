@@ -93,5 +93,20 @@ class CatalogoServiceTest {
         // Búsqueda por palabra clave dentro de características
         List<EquipoDto> busquedaPorCaract = equipoService.listarOBuscar("omnidireccional");
         assertFalse(busquedaPorCaract.isEmpty());
+
+        // Verificación de consultas paginadas
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+        org.springframework.data.domain.Page<EquipoDto> pageEquipos = equipoService.listarOBuscarPaginado("ORBIT", null, null, pageable);
+        assertNotNull(pageEquipos);
+        assertFalse(pageEquipos.isEmpty());
+        assertEquals(1, pageEquipos.getTotalElements());
+
+        org.springframework.data.domain.Page<ClienteDto> pageClientes = clienteService.listarOBuscarPaginado(null, null, null, pageable);
+        assertNotNull(pageClientes);
+        assertFalse(pageClientes.isEmpty());
+
+        org.springframework.data.domain.Page<UsuarioDto> pageUsuarios = usuarioService.listarOBuscarPaginado(null, null, false, pageable);
+        assertNotNull(pageUsuarios);
+        assertFalse(pageUsuarios.isEmpty());
     }
 }
