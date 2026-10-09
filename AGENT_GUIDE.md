@@ -330,10 +330,13 @@ El archivo [`application.yml`](file:///c:/Users/luizi/OneDrive/Escritorio/WebApp
 | `HIKARI_MAX_POOL_SIZE` | `5` | `5` (óptimo para Aiven Free Tier) |
 | `HIBERNATE_DDL_AUTO` | `update` | `update` |
 
-### 4. Paginación y Rendimiento en Catálogos
-Para evitar la saturación de memoria tanto en base de datos como en clientes web y móviles, las APIs maestras de catálogos implementan paginación estándar con Spring Data JPA y DTO envolvente:
+### 4. Paginación y Rendimiento en Catálogos (Estrategia Híbrida: Tablas vs Typeaheads)
+Para optimizar el rendimiento y la experiencia de usuario, las APIs maestras de catálogos implementan paginación estándar con Spring Data JPA y soporte para búsqueda directa:
 - **Endpoints**: `GET /api/v1/clientes`, `GET /api/v1/equipos`, `GET /api/v1/usuarios`.
-- **Parámetros**: `page` (0-indexed, default 0), `size` (default 15), `sort` opcional.
+- **Parámetros**:
+  - `q`: Término de búsqueda textual (opcional). Realiza consultas multicampo con SQL `LIKE %q%` (`ClienteRepository.buscarClientes`, `EquipoRepository.buscarEquipos`). Utilizado por los cuadros de búsqueda interactiva (*Typeahead*) en frontend con debounce (250ms) y tamaño acotado (ej. `size=30`), garantizando que se busquen coincidencias en el **100% de la base de datos** sin que ningún registro quede excluido por límites de página.
+  - `page` (0-indexed, default 0), `size` (default 15), `sort` opcional: Utilizado por las tablas maestras administrativas para navegación eficiente de registros.
+  - `empresaId`, `sucursalId`: Filtros de aislamiento multi-tenant verificados en base al `UserPrincipal` en sesión.
 - **Respuesta Envolvente**: [`PageResponseDto<T>`](file:///c:/Users/luizi/OneDrive/Escritorio/WebAppRetail_BackEnd/src/main/java/com/retail/cotizador/common/dto/PageResponseDto.java) conteniendo:
   `{ content: T[], pageNumber: int, pageSize: int, totalElements: long, totalPages: int, first: boolean, last: boolean }`.
 - **Compatibilidad**: Los servicios conservan métodos `listarOBuscar(...)` para llamadas directas internas y pruebas unitarias, junto a `listarOBuscarPaginado(...)`.
